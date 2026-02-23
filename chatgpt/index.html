@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ChatGPT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.png" type="image/png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+    <script src="https://js.puter.com/v2/"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        ::selection { background: #b8ddff; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fff;
+            color: #000;
+            padding-top: 70px;
+            padding-bottom: 140px;
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 15px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+        }
+        .new-chat-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            margin-right: 15px;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .new-chat-btn:hover { background: #e5e5e5; }
+        .new-chat-btn:hover::after {
+            content: '新聊天';
+            position: absolute;
+            bottom: -38px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .custom-select {
+            position: relative;
+            width: fit-content;
+        }
+        .select-selected {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            background: #fff;
+            font-size: 20px;
+            height: 44px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            white-space: nowrap;
+        }
+        /* 模型选择框悬停背景变灰 (类似新对话按钮) */
+        .select-selected:hover {
+            background: #e5e5e5;
+        }
+        .select-selected .version {
+            font-weight: 400;
+            color: #3c3c3c;
+        }
+        .select-selected::after {
+            content: "";
+            width: 20px;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>') no-repeat center/contain;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+        .select-items {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            width: 240px;
+            background: #fff;
+            border: 1px solid #d0d0d0;
+            border-radius: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            z-index: 100;
+            display: none;
+        }
+        .select-items.active { display: block; }
+        .select-group {
+            color: #1a1a1a;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 10px 14px 5px;
+            cursor: default;
+            background: #fff;
+            border-bottom: 1px solid #eaeaea;
+        }
+        .select-item {
+            padding: 10px 30px 10px 14px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            position: relative;
+        }
+        .select-item:hover { background: #f5f5f5; }
+        .select-item.selected { background: #f0f0f0; }
+        .select-item.selected::after {
+            content: "";
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5"><path d="M4 12l5 5 11-11"/></svg>') no-repeat center/contain;
+        }
+        .item-title { font-weight: 600; font-size: 14px; }
+        .item-desc { font-size: 11px; color: #666; margin-top: 2px; }
+        .chat-container {
+            height: calc(100vh - 210px);
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        .msg-row {
+            width: 100%;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .msg-row.user { align-items: flex-end; }
+        .msg-bubble {
+            max-width: 85%;
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 16px;
+            word-wrap: break-word;
+            width: fit-content;
+        }
+        .msg-bubble.user { background: #e0e0e0; }
+        .model-tag {
+            background: transparent;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 16px;
+            width: 80%;
+            margin-bottom: 4px;
+        }
+        .model-tag div:first-child { font-weight: bold; }
+        .msg-text { font-size: 16px; line-height: 1.5; }
+        .thinking-dot {
+            width: 10px;
+            height: 10px;
+            background: black;
+            border-radius: 50%;
+            margin: 0 0 16px 0;
+            animation: breathe 1.2s ease-in-out infinite;
+        }
+        @keyframes breathe {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .welcome-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #000;
+            font-size: 28px;
+            margin: 120px auto auto auto;
+        }
+        .bottom-section {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px;
+            background: #fff;
+            z-index: 1000;
+        }
+        .web-search-toggle {
+            border: 1px solid #d0d0d0;
+            border-radius: 18px;
+            background: #fff;
+            padding: 8px 12px;
+            font-size: 14px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            height: 36px;
+            margin-bottom: 8px;
+        }
+        .web-search-toggle.active {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-color: #1565c0;
+        }
+        .input-container {
+            display: flex;
+            align-items: flex-start;
+            position: relative;
+        }
+        .input-box {
+            flex: 1;
+            min-height: 48px;
+            max-height: 132px;
+            padding: 10px 50px 10px 15px;
+            border: 1px solid #d0d0d0;
+            border-radius: 24px;
+            resize: none;
+            font-size: 16px;
+            font-family: inherit;
+            background: #fff;
+            color: #000;
+            line-height: 1.4;
+        }
+        .input-box:focus { outline: none; border-color: #888; }
+        .send-button {
+            position: absolute;
+            right: 10px;
+            bottom: 8px;
+            border: none;
+            border-radius: 50%;
+            background: #000;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .send-button:disabled { background: #ccc; cursor: not-allowed; }
+        .send-button svg { fill: white; width: 18px; height: 18px; }
+        .footer {
+            text-align: center;
+            padding: 12px 15px 0;
+            font-size: 12px;
+            color: #666;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="new-chat-btn" id="newChatBtn">
+            <img src="icon.png" width="20" height="20" alt="new">
+        </button>
+        <div class="custom-select" id="customSelect">
+            <div class="select-selected" id="selectSelected">ChatGPT <span class="version">5.2 Instant</span></div>
+            <div class="select-items" id="selectItems"></div>
+        </div>
+    </div>
+    
+    <div class="chat-container" id="chatContainer">
+        <div class="welcome-message" id="welcomeMessage"></div>
+    </div>
+    
+    <div class="bottom-section">
+        <button class="web-search-toggle" id="webSearchToggle">🌐 搜索</button>
+        <div class="input-container">
+            <textarea class="input-box" id="inputBox" placeholder="有问题，尽管问" rows="2"></textarea>
+            <button class="send-button" id="sendButton">
+                <svg viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.58L20 12l-8-8-8 8z"></path></svg>
+            </button>
+        </div>
+        <div class="footer">ChatGPT 也可能会犯错。请核查重要信息。查看 Cookie 首选项。</div>
+    </div>
+
+    <script>
+        (function() {
+            marked.setOptions({ breaks: true, gfm: true });
+
+            function renderMarkdownWithMath(text) {
+                if (!window.katex) return marked.parse(text);
+                let formulas = {}, idx = 0;
+                text = text.replace(/\$\$([\s\S]*?)\$\$/g, (m, p) => {
+                    try { let h = katex.renderToString(p, { displayMode: true, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
+                }).replace(/\\\[([\s\S]*?)\\\]/g, (m, p) => {
+                    try { let h = katex.renderToString(p, { displayMode: true, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
+                }).replace(/\\\(([\s\S]*?)\\\)/g, (m, p) => {
+                    try { let h = katex.renderToString(p, { displayMode: false, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
+                });
+                let html = marked.parse(text);
+                return html.replace(/@@KATEX_(\d+)@@/g, (match) => formulas[match] || match);
+            }
+
+            const MODEL_NAMES = {
+                'gpt-5.2-chat': 'GPT-5.2 Instant',
+                'gpt-5.2': 'GPT-5.2 Thinking',
+                'gpt-5.2-pro': 'GPT-5.2 Pro',
+                'gpt-5.1-chat-latest': 'GPT-5.1 Instant',
+                'gpt-5.1': 'GPT-5.1 Thinking',
+                'gpt-4o': 'GPT-4o'
+            };
+            const MODEL_LIST = [
+                { id: 'gpt-5.2-chat', title: 'Instant', desc: '即刻回答' },
+                { id: 'gpt-5.2', title: 'Thinking', desc: '思考更充分，回答更优质' },
+                { id: 'gpt-5.2-pro', title: 'Pro', desc: '研究级智能模型' }
+            ];
+            
+            const chatContainer = document.getElementById('chatContainer');
+            const inputBox = document.getElementById('inputBox');
+            const sendBtn = document.getElementById('sendButton');
+            const webToggle = document.getElementById('webSearchToggle');
+            const welcome = document.getElementById('welcomeMessage');
+            const newChat = document.getElementById('newChatBtn');
+            const selectSelected = document.getElementById('selectSelected');
+            const selectItems = document.getElementById('selectItems');
+            const customSelect = document.getElementById('customSelect');
+
+            // ---------- token计数规则：英文字母/符号=1，中文字/符号=2，其他=1 ----------
+            const MAX_TOKENS = 32768;
+
+            function countTokens(text) {
+                if (!text) return 0;
+                let tokens = 0;
+                for (let i = 0; i < text.length; i++) {
+                    const code = text.charCodeAt(i);
+                    if ((code >= 0x4E00 && code <= 0x9FFF) ||  
+                        (code >= 0x3400 && code <= 0x4DBF) ||  
+                        (code >= 0x20000 && code <= 0x2A6DF) || 
+                        (code >= 0x3000 && code <= 0x303F) ||  
+                        (code >= 0xFF00 && code <= 0xFFEF)) {  
+                        tokens += 2;
+                    } else {
+                        tokens += 1; 
+                    }
+                }
+                return tokens;
+            }
+
+            let messages = [];
+
+            function messagesToText() {
+                return messages.map(msg => {
+                    return (msg.role === 'user' ? '用户: ' : 'AI: ') + msg.content;
+                }).join('\n');
+            }
+
+            function trimMessagesIfNeeded(limit = MAX_TOKENS) {
+                let total = messages.reduce((sum, msg) => sum + msg.tokens, 0);
+                while (total > limit && messages.length >= 2) {
+                    const removed1 = messages.shift();
+                    const removed2 = messages.shift();
+                    total -= (removed1.tokens + removed2.tokens);
+                }
+                while (total > limit && messages.length > 0) {
+                    const removed = messages.shift();
+                    total -= removed.tokens;
+                }
+            }
+            // ------------------------------------------------
+
+            let isThinking = false, webEnabled = false, hasSent = false;
+            welcome.textContent = ['有什么可以帮忙的？','我们先从哪里开始呢？','准备好了','今天有什么计划？','您今天在想什么？'][Math.floor(Math.random()*5)];
+
+            function updateSendButtonState() {
+                sendBtn.disabled = isThinking || !inputBox.value.trim();
+            }
+
+            function createModelTag(modelId, elapsedSeconds = null) {
+                let div = document.createElement('div');
+                div.className = 'model-tag';
+                let line1 = document.createElement('div');
+                line1.style.fontWeight = 'bold';
+                line1.textContent = `Request for ${MODEL_NAMES[modelId] || modelId}`;
+                div.appendChild(line1);
+                if (modelId === 'gpt-5.2-pro' && elapsedSeconds !== null) {
+                    let line2 = document.createElement('div');
+                    let minutes = Math.floor(elapsedSeconds / 60), seconds = elapsedSeconds % 60;
+                    line2.textContent = `Reasoned for ${minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`}`;
+                    div.appendChild(line2);
+                }
+                return div;
+            }
+
+            function updateSelectedDisplay(modelId) {
+                let full = MODEL_NAMES[modelId] || modelId;
+                let version = full.startsWith('GPT-') ? full.substring(4) : full;
+                selectSelected.innerHTML = `ChatGPT&nbsp;<span class="version">${version}</span>`;
+            }
+
+            function buildSelect() {
+                selectItems.innerHTML = '';
+                let group = document.createElement('div');
+                group.className = 'select-group';
+                group.textContent = 'GPT-5.2';
+                selectItems.appendChild(group);
+
+                MODEL_LIST.forEach(item => {
+                    let opt = document.createElement('div');
+                    opt.className = 'select-item';
+                    opt.dataset.value = item.id;
+                    opt.dataset.title = item.title;
+                    opt.innerHTML = `<span class="item-title">${item.title}</span><span class="item-desc">${item.desc}</span>`;
+                    selectItems.appendChild(opt);
+                });
+
+                let collapsible = document.createElement('div');
+                collapsible.style.borderTop = '1px solid #eaeaea';
+
+                let legacyHeader = document.createElement('div');
+                legacyHeader.className = 'select-group';
+                legacyHeader.style.cssText = 'display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:8px 14px';
+                legacyHeader.innerHTML = 'Legacy Models';
+                let arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                arrow.setAttribute('width', '20'); arrow.setAttribute('height', '20'); arrow.setAttribute('viewBox', '0 0 24 24');
+                arrow.setAttribute('fill', 'none'); arrow.setAttribute('stroke', 'black'); arrow.setAttribute('stroke-width', '2');
+                arrow.innerHTML = '<path d="M6 9l6 6 6-6"/>';
+                legacyHeader.appendChild(arrow);
+
+                let legacyContent = document.createElement('div');
+                legacyContent.style.display = 'none';
+
+                [
+                    { value: 'gpt-5.1-chat-latest', title: 'GPT-5.1 Instant' },
+                    { value: 'gpt-5.1', title: 'GPT-5.1 Thinking' },
+                    { value: 'gpt-4o', title: 'GPT-4o' }
+                ].forEach(model => {
+                    let opt = document.createElement('div');
+                    opt.className = 'select-item';
+                    opt.dataset.value = model.value;
+                    opt.dataset.title = model.title;
+                    opt.innerHTML = `<span class="item-title">${model.title}</span>`;
+                    legacyContent.appendChild(opt);
+                });
+
+                collapsible.appendChild(legacyHeader);
+                collapsible.appendChild(legacyContent);
+                selectItems.appendChild(collapsible);
+
+                legacyHeader.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    let hidden = legacyContent.style.display === 'none';
+                    legacyContent.style.display = hidden ? 'block' : 'none';
+                    arrow.style.transform = hidden ? 'rotate(180deg)' : '';
+                });
+
+                document.querySelector('.select-item[data-value="gpt-5.2-chat"]')?.classList.add('selected');
+                updateSelectedDisplay('gpt-5.2-chat');
+            }
+
+            function getFinalModel() {
+                let sel = document.querySelector('.select-item.selected');
+                return sel ? sel.dataset.value : 'gpt-5.2-chat';
+            }
+
+            function addMessage(text, isUser = false, streaming = false) {
+                if (isUser && !hasSent) {
+                    welcome.style.display = 'none';
+                    hasSent = true;
+                }
+                let row = document.createElement('div');
+                row.className = `msg-row ${isUser ? 'user' : 'ai'}`;
+                let bubble = document.createElement('div');
+                bubble.className = `msg-bubble${isUser ? ' user' : ''}`;
+                let msgText = document.createElement('div');
+                msgText.className = 'msg-text';
+                
+                if (isUser) {
+                    msgText.innerHTML = text.replace(/\n/g, '<br>');
+                } else {
+                    msgText.innerHTML = renderMarkdownWithMath(text);
+                }
+                
+                bubble.appendChild(msgText);
+                row.appendChild(bubble);
+                chatContainer.appendChild(row);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                return msgText; 
+            }
+
+            async function send() {
+                if (isThinking) return;
+                let text = inputBox.value.trim();
+                if (!text) return;
+
+                inputBox.value = '';
+                inputBox.style.height = '';
+                addMessage(text, true); // 用户消息
+                let finalModel = getFinalModel();
+
+                trimMessagesIfNeeded(MAX_TOKENS);
+
+                isThinking = true;
+                updateSendButtonState();
+
+                // 创建黑色呼吸圆点 (思考中)
+                let thinkingRow = document.createElement('div');
+                thinkingRow.className = 'msg-row ai';  // 保持左对齐
+                thinkingRow.innerHTML = '<div class="thinking-dot"></div>';
+                chatContainer.appendChild(thinkingRow);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                let opts = { stream: true, model: finalModel };
+                if (finalModel.includes('gpt-5.')) opts.driver = 'openrouter';
+                if (webEnabled) opts.tools = [{ type: 'web_search' }];
+
+                const startTime = Date.now();
+                let firstChunkReceived = false;
+                let bubbleRow = null;   // 保存气泡所在的行
+                let msgText = null;      // 气泡内的文本元素
+                let full = '';
+
+                try {
+                    let history = messagesToText();
+                    let prompt = history ? history + '\n' : '';
+                    prompt += '用户: ' + text + '\nAI: ';
+
+                    let res = await puter.ai.chat(prompt, opts);
+                    
+                    for await (let part of res) {
+                        if (!firstChunkReceived) {
+                            // 收到第一个块：移除呼吸圆点，创建真实气泡
+                            thinkingRow.remove();
+                            thinkingRow = null;
+
+                            let row = document.createElement('div');
+                            row.className = 'msg-row ai';
+                            let bubble = document.createElement('div');
+                            bubble.className = 'msg-bubble';
+                            msgText = document.createElement('div');
+                            msgText.className = 'msg-text';
+                            bubble.appendChild(msgText);
+                            row.appendChild(bubble);
+                            chatContainer.appendChild(row);
+                            bubbleRow = row;
+                            firstChunkReceived = true;
+                        }
+
+                        if (part?.text) {
+                            full += part.text;
+                            msgText.innerHTML = renderMarkdownWithMath(full);
+                            chatContainer.scrollTop = chatContainer.scrollHeight;
+                        }
+                    }
+
+                    // 流式结束，处理可能空响应的情况
+                    if (!firstChunkReceived) {
+                        // 从未收到任何块：移除圆点，显示空响应消息
+                        if (thinkingRow) thinkingRow.remove();
+                        addMessage('模型返回了空响应', false);
+                    } else {
+                        // 正常结束，插入模型标签
+                        const userTokens = countTokens(text);
+                        const assistantTokens = countTokens(full);
+                        messages.push({ role: 'user', content: text, tokens: userTokens });
+                        messages.push({ role: 'assistant', content: full, tokens: assistantTokens });
+                        trimMessagesIfNeeded(MAX_TOKENS);
+
+                        let elapsed = Math.floor((Date.now() - startTime) / 1000);
+                        let tag = createModelTag(finalModel, finalModel === 'gpt-5.2-pro' ? elapsed : null);
+                        bubbleRow.insertBefore(tag, bubbleRow.firstChild);
+                    }
+
+                } catch (err) {
+                    // 出错：移除呼吸圆点，显示错误消息
+                    if (thinkingRow) thinkingRow.remove();
+                    addMessage('错误: ' + err.message, false);
+                } finally {
+                    isThinking = false;
+                    updateSendButtonState();
+                    inputBox.focus();
+                }
+            }
+
+            inputBox.addEventListener('input', () => {
+                inputBox.style.height = 'auto';
+                inputBox.style.height = Math.min(inputBox.scrollHeight, 132) + 'px';
+                updateSendButtonState();
+            });
+            inputBox.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey && !isThinking && !/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                    e.preventDefault();
+                    send();
+                }
+            });
+            sendBtn.addEventListener('click', send);
+            webToggle.addEventListener('click', () => {
+                webEnabled = !webEnabled;
+                webToggle.classList.toggle('active', webEnabled);
+            });
+            // 新聊天按钮：直接刷新，不提示
+            newChat.addEventListener('click', () => {
+                location.reload();
+            });
+
+            selectSelected.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectItems.classList.toggle('active');
+            });
+            document.addEventListener('click', (e) => {
+                if (!customSelect.contains(e.target)) selectItems.classList.remove('active');
+            });
+            selectItems.addEventListener('click', (e) => {
+                let target = e.target.closest('.select-item');
+                if (!target) return;
+                document.querySelectorAll('.select-item').forEach(el => el.classList.remove('selected'));
+                target.classList.add('selected');
+                updateSelectedDisplay(target.dataset.value);
+            });
+
+            buildSelect();
+            updateSendButtonState();
+            inputBox.focus();
+        })();
+
+        document.addEventListener('gesturestart', function(e) {
+            e.preventDefault();
+        });
+        
+        document.addEventListener('touchmove', function(e) {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+        
+        document.addEventListener('gesturechange', function(e) {
+            e.preventDefault();
+        });
+        
+        document.addEventListener('gestureend', function(e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html>
