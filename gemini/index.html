@@ -1,1 +1,580 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gemini · AI 助理</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.png" type="image/png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css" integrity="sha384-wcIxkf4k558AjM3Yz3BBFQUbk/zgIYC2R0QpeeYb+TwlBVMrlgLqwRjRtGZiK7ww" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js" integrity="sha384-hIoBPJpTUs74ddyc4bFZSM1TVlQDA60VBbJS0oA934VSz82sBx1X7kSx2ATBDIyd" crossorigin="anonymous"></script>
+    <script src="https://js.puter.com/v2/"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        ::selection { background: #c9e0ff; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f4f8;  /* 新背景色 */
+            color: #1e2a3a;
+            padding-top: 70px;
+            padding-bottom: 140px;
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 12px 15px;
+            background: #f0f4f8;  /* 与body统一 */
+            display: flex;
+            align-items: center;
+            z-index: 1000;
+        }
+        /* 左侧纯Gemini文字按钮 — 无悬停提示，点击刷新 */
+        .gemini-btn {
+            font-size: 24px;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            background: transparent;
+            border: none;
+            color: #1a3b5d;
+            cursor: pointer;
+            margin-right: 20px;
+            padding: 4px 0;
+            /* 类似Google Sans风格，但使用系统字体 */
+            font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .gemini-btn:hover {
+            opacity: 0.8;
+        }
+        /* 自定义选择器 — 基本保留原风格，背景微调 */
+        .custom-select {
+            position: relative;
+            width: fit-content;
+            margin-left: auto;  /* 靠右 */
+        }
+        .select-selected {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 24px;
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(4px);
+            font-size: 18px;
+            height: 44px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            white-space: nowrap;
+            border: 1px solid #d0d9e8;
+        }
+        .select-selected:hover {
+            background: #e2e8f0;
+        }
+        .select-selected .version {
+            font-weight: 400;
+            color: #2c3e5c;
+        }
+        .select-selected::after {
+            content: "";
+            width: 20px;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%232c3e5c" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>') no-repeat center/contain;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+        .select-items {
+            position: absolute;
+            top: calc(100% + 4px);
+            right: 0;           /* 右对齐更自然 */
+            width: 260px;
+            background: #ffffff;
+            border: 1px solid #cfddee;
+            border-radius: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(0,20,40,0.15);
+            z-index: 100;
+            display: none;
+        }
+        .select-items.active { display: block; }
+        .select-item {
+            padding: 12px 18px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            position: relative;
+            border-bottom: 1px solid #f0f4fa;
+        }
+        .select-item:last-child { border-bottom: none; }
+        .select-item:hover { background: #f0f6ff; }
+        .select-item.selected { background: #e9f0fe; }
+        .select-item.selected::after {
+            content: "";
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 16px;
+            height: 16px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%231a73e8" stroke-width="2.5"><path d="M4 12l5 5 11-11"/></svg>') no-repeat center/contain;
+        }
+        .item-title { font-weight: 600; font-size: 15px; color: #0b2b4a; }
+        .item-desc { font-size: 12px; color: #4a5e7a; margin-top: 4px; }
 
+        .chat-container {
+            height: calc(100vh - 210px);
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        .msg-row {
+            width: 100%;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .msg-row.user { align-items: flex-end; }
+        .msg-bubble {
+            max-width: 85%;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 16px 18px;
+            word-wrap: break-word;
+            width: fit-content;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+            border: 1px solid #e2eaf5;
+        }
+        .msg-bubble.user { 
+            background: #d9e6f5;
+            border: 1px solid #b9cfec;
+        }
+        .model-tag {
+            background: transparent;
+            color: #1e3b5c;
+            border: 1px solid #b8cde0;
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 14px;
+            width: fit-content;
+            margin-bottom: 6px;
+            font-weight: 450;
+        }
+        .model-tag div:first-child { font-weight: 500; }
+        .msg-text { font-size: 16px; line-height: 1.5; color: #102331; }
+        .thinking-dot {
+            width: 10px;
+            height: 10px;
+            background: #2c577c;
+            border-radius: 50%;
+            margin: 0 0 16px 0;
+            animation: breathe 1.2s ease-in-out infinite;
+        }
+        @keyframes breathe {
+            0% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.7; }
+        }
+        .welcome-message {
+            text-align: center;
+            padding: 40px 20px;
+            color: #173457;
+            font-size: 28px;
+            font-weight: 350;
+            margin: 120px auto auto auto;
+            max-width: 700px;
+            line-height: 1.4;
+        }
+        .bottom-section {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px 20px;
+            background: #f0f4f8;  /* 一致背景 */
+            z-index: 1000;
+            border-top: 1px solid #d3e0ee;
+        }
+        /* 联网按钮已彻底移除 */
+        .input-container {
+            display: flex;
+            align-items: flex-start;
+            position: relative;
+            max-width: 860px;
+            margin: 0 auto;
+        }
+        .input-box {
+            flex: 1;
+            min-height: 52px;
+            max-height: 132px;
+            padding: 14px 55px 14px 20px;
+            border: 1px solid #c7d6e8;
+            border-radius: 32px;
+            resize: none;
+            font-size: 16px;
+            font-family: inherit;
+            background: white;
+            color: #001b36;
+            line-height: 1.5;
+            box-shadow: 0 2px 8px rgba(0,20,40,0.05);
+        }
+        .input-box:focus { outline: none; border-color: #4f8cff; box-shadow: 0 2px 12px rgba(26,115,232,0.15); }
+        .send-button {
+            position: absolute;
+            right: 12px;
+            bottom: 10px;
+            border: none;
+            border-radius: 50%;
+            background: #1a73e8;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.1s;
+        }
+        .send-button:disabled { background: #a0b9d6; cursor: not-allowed; }
+        .send-button svg { fill: white; width: 20px; height: 20px; }
+        .footer {
+            text-align: center;
+            padding: 14px 15px 6px;
+            font-size: 13px;
+            color: #3d5879;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        html, body { height: 100%; overflow: hidden; margin: 0; }
+        a { color: #1a5fb0; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <!-- 左上角纯Gemini文字按钮，点击刷新页面（无悬停提示） -->
+        <button class="gemini-btn" id="geminiRefreshBtn">Gemini</button>
+
+        <!-- 模型选择下拉框 (仅两个Gemini模型) -->
+        <div class="custom-select" id="customSelect">
+            <div class="select-selected" id="selectSelected">Gemini <span class="version">3 Flash Preview</span></div>
+            <div class="select-items" id="selectItems"></div>
+        </div>
+    </div>
+    
+    <div class="chat-container" id="chatContainer">
+        <!-- 固定欢迎语 -->
+        <div class="welcome-message" id="welcomeMessage">认识 Gemini：你的私人 AI 助理</div>
+    </div>
+    
+    <div class="bottom-section">
+        <!-- 联网按钮已完全移除，联网始终开启 -->
+        <div class="input-container">
+            <textarea class="input-box" id="inputBox" placeholder="问问 Gemini 3" rows="2"></textarea>
+            <button class="send-button" id="sendButton">
+                <svg viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.58L20 12l-8-8-8 8z"></path></svg>
+            </button>
+        </div>
+        <div class="footer">须遵守《Google 条款》和《Google 隐私权政策》。Gemini 是一款 AI 工具，其回答未必正确无误。</div>
+    </div>
+
+    <script>
+        (function() {
+            marked.setOptions({ breaks: true, gfm: true });
+
+            function renderMarkdownWithMath(text) {
+                if (!window.katex) return marked.parse(text);
+                let formulas = {}, idx = 0;
+                text = text.replace(/\$\$([\s\S]*?)\$\$/g, (m, p) => {
+                    try { let h = katex.renderToString(p, { displayMode: true, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
+                }).replace(/\\\[([\s\S]*?)\\\]/g, (m, p) => {
+                    try { let h = katex.renderToString(p, { displayMode: true, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
+                }).replace(/\\\(([\s\S]*?)\\\)/g, (m, p) => {
+                    try { let h = katex.renderToString(p, { displayMode: false, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
+                });
+                let html = marked.parse(text);
+                return html.replace(/@@KATEX_(\d+)@@/g, (match) => formulas[match] || match);
+            }
+
+            // 模型定义 —— 仅保留两个Gemini模型
+            const MODEL_NAMES = {
+                'gemini-3-flash-preview': 'Gemini 3 Flash Preview',
+                'gemini-3.1-pro-preview': 'Gemini 3.1 Pro Preview'
+            };
+            const MODEL_LIST = [
+                { id: 'gemini-3-flash-preview', title: 'Flash Preview', desc: '快速响应，日常助理' },
+                { id: 'gemini-3.1-pro-preview', title: 'Pro Preview', desc: '复杂推理，深度分析' }
+            ];
+            
+            const chatContainer = document.getElementById('chatContainer');
+            const inputBox = document.getElementById('inputBox');
+            const sendBtn = document.getElementById('sendButton');
+            const welcome = document.getElementById('welcomeMessage');
+            const selectSelected = document.getElementById('selectSelected');
+            const selectItems = document.getElementById('selectItems');
+            const customSelect = document.getElementById('customSelect');
+            const geminiRefreshBtn = document.getElementById('geminiRefreshBtn');
+
+            // ---------- token计数规则：英文字母/符号=1，中文字/符号=2 ----------
+            const MAX_TOKENS = 32768;
+
+            function countTokens(text) {
+                if (!text) return 0;
+                let tokens = 0;
+                for (let i = 0; i < text.length; i++) {
+                    const code = text.charCodeAt(i);
+                    if ((code >= 0x4E00 && code <= 0x9FFF) ||  
+                        (code >= 0x3400 && code <= 0x4DBF) ||  
+                        (code >= 0x20000 && code <= 0x2A6DF) || 
+                        (code >= 0x3000 && code <= 0x303F) ||  
+                        (code >= 0xFF00 && code <= 0xFFEF)) {  
+                        tokens += 2;
+                    } else {
+                        tokens += 1; 
+                    }
+                }
+                return tokens;
+            }
+
+            let messages = [];
+
+            function messagesToText() {
+                return messages.map(msg => {
+                    return (msg.role === 'user' ? '用户: ' : 'AI: ') + msg.content;
+                }).join('\n');
+            }
+
+            function trimMessagesIfNeeded(limit = MAX_TOKENS) {
+                let total = messages.reduce((sum, msg) => sum + msg.tokens, 0);
+                while (total > limit && messages.length >= 2) {
+                    const removed1 = messages.shift();
+                    const removed2 = messages.shift();
+                    total -= (removed1.tokens + removed2.tokens);
+                }
+                while (total > limit && messages.length > 0) {
+                    const removed = messages.shift();
+                    total -= removed.tokens;
+                }
+            }
+
+            let isThinking = false;
+            // 联网始终开启 (webEnabled = true)，无切换按钮
+
+            // 欢迎语固定
+            welcome.textContent = '认识 Gemini：你的私人 AI 助理';
+
+            function updateSendButtonState() {
+                sendBtn.disabled = isThinking || !inputBox.value.trim();
+            }
+
+            function createModelTag(modelId, elapsedSeconds = null) {
+                let div = document.createElement('div');
+                div.className = 'model-tag';
+                let line1 = document.createElement('div');
+                line1.style.fontWeight = 'bold';
+                line1.textContent = `Request for ${MODEL_NAMES[modelId] || modelId}`;
+                div.appendChild(line1);
+                // Pro模型显示思考耗时
+                if (modelId === 'gemini-3.1-pro-preview' && elapsedSeconds !== null) {
+                    let line2 = document.createElement('div');
+                    let minutes = Math.floor(elapsedSeconds / 60), seconds = elapsedSeconds % 60;
+                    line2.textContent = `Reasoned for ${minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`}`;
+                    div.appendChild(line2);
+                }
+                return div;
+            }
+
+            function updateSelectedDisplay(title) {
+                //  title 例如 "Flash Preview" 或 "Pro Preview"
+                selectSelected.innerHTML = `Gemini&nbsp;<span class="version">${title}</span>`;
+            }
+
+            // 构建下拉选项 (只含两个模型，无折叠)
+            function buildSelect() {
+                selectItems.innerHTML = '';
+                MODEL_LIST.forEach(item => {
+                    let opt = document.createElement('div');
+                    opt.className = 'select-item';
+                    opt.dataset.value = item.id;
+                    opt.dataset.title = item.title;      // 用于显示简标
+                    opt.innerHTML = `<span class="item-title">${item.title}</span><span class="item-desc">${item.desc}</span>`;
+                    selectItems.appendChild(opt);
+                });
+
+                // 默认选中第一个 (Flash Preview)
+                const firstItem = document.querySelector('.select-item[data-value="gemini-3-flash-preview"]');
+                if (firstItem) {
+                    firstItem.classList.add('selected');
+                    updateSelectedDisplay('Flash Preview');
+                }
+            }
+
+            function getFinalModel() {
+                let sel = document.querySelector('.select-item.selected');
+                return sel ? sel.dataset.value : 'gemini-3-flash-preview';
+            }
+
+            function addMessage(text, isUser = false) {
+                // 用户第一次发送消息时欢迎语保留隐藏 (已由外层处理)
+                let row = document.createElement('div');
+                row.className = `msg-row ${isUser ? 'user' : 'ai'}`;
+                let bubble = document.createElement('div');
+                bubble.className = `msg-bubble${isUser ? ' user' : ''}`;
+                let msgText = document.createElement('div');
+                msgText.className = 'msg-text';
+                
+                if (isUser) {
+                    msgText.innerHTML = text.replace(/\n/g, '<br>');
+                } else {
+                    msgText.innerHTML = renderMarkdownWithMath(text);
+                }
+                
+                bubble.appendChild(msgText);
+                row.appendChild(bubble);
+                chatContainer.appendChild(row);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                return msgText; 
+            }
+
+            async function send() {
+                if (isThinking) return;
+                let text = inputBox.value.trim();
+                if (!text) return;
+
+                inputBox.value = '';
+                inputBox.style.height = '';
+                addMessage(text, true); // 用户消息
+                let finalModel = getFinalModel();
+
+                trimMessagesIfNeeded(MAX_TOKENS);
+
+                isThinking = true;
+                updateSendButtonState();
+
+                // 黑色呼吸圆点 (思考中)
+                let thinkingRow = document.createElement('div');
+                thinkingRow.className = 'msg-row ai';
+                thinkingRow.innerHTML = '<div class="thinking-dot"></div>';
+                chatContainer.appendChild(thinkingRow);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                let opts = { 
+                    stream: true, 
+                    model: finalModel,
+                    tools: [{ type: 'web_search' }]  // 联网始终开启
+                };
+                // 保留原driver设定（可选）
+                if (finalModel.includes('gemini-')) opts.driver = 'openrouter';  // 兼容puter
+
+                const startTime = Date.now();
+                let firstChunkReceived = false;
+                let bubbleRow = null;
+                let msgText = null;
+                let full = '';
+
+                try {
+                    let history = messagesToText();
+                    let prompt = history ? history + '\n' : '';
+                    prompt += '用户: ' + text + '\nAI: ';
+
+                    let res = await puter.ai.chat(prompt, opts);
+                    
+                    for await (let part of res) {
+                        if (!firstChunkReceived) {
+                            thinkingRow.remove();
+                            thinkingRow = null;
+
+                            let row = document.createElement('div');
+                            row.className = 'msg-row ai';
+                            let bubble = document.createElement('div');
+                            bubble.className = 'msg-bubble';
+                            msgText = document.createElement('div');
+                            msgText.className = 'msg-text';
+                            bubble.appendChild(msgText);
+                            row.appendChild(bubble);
+                            chatContainer.appendChild(row);
+                            bubbleRow = row;
+                            firstChunkReceived = true;
+                        }
+
+                        if (part?.text) {
+                            full += part.text;
+                            msgText.innerHTML = renderMarkdownWithMath(full);
+                            chatContainer.scrollTop = chatContainer.scrollHeight;
+                        }
+                    }
+
+                    if (!firstChunkReceived) {
+                        if (thinkingRow) thinkingRow.remove();
+                        addMessage('模型返回了空响应', false);
+                    } else {
+                        // 正常结束，插入模型标签
+                        const userTokens = countTokens(text);
+                        const assistantTokens = countTokens(full);
+                        messages.push({ role: 'user', content: text, tokens: userTokens });
+                        messages.push({ role: 'assistant', content: full, tokens: assistantTokens });
+                        trimMessagesIfNeeded(MAX_TOKENS);
+
+                        let elapsed = Math.floor((Date.now() - startTime) / 1000);
+                        let tag = createModelTag(finalModel, finalModel === 'gemini-3.1-pro-preview' ? elapsed : null);
+                        bubbleRow.insertBefore(tag, bubbleRow.firstChild);
+                    }
+
+                } catch (err) {
+                    if (thinkingRow) thinkingRow.remove();
+                    addMessage('错误: ' + err.message, false);
+                } finally {
+                    isThinking = false;
+                    updateSendButtonState();
+                    inputBox.focus();
+                }
+            }
+
+            // 事件绑定
+            inputBox.addEventListener('input', () => {
+                inputBox.style.height = 'auto';
+                inputBox.style.height = Math.min(inputBox.scrollHeight, 132) + 'px';
+                updateSendButtonState();
+            });
+            inputBox.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey && !isThinking && !/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                    e.preventDefault();
+                    send();
+                }
+            });
+            sendBtn.addEventListener('click', send);
+
+            // Gemini 文字按钮点击刷新页面 (无提示)
+            geminiRefreshBtn.addEventListener('click', () => {
+                location.reload();
+            });
+
+            selectSelected.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectItems.classList.toggle('active');
+            });
+            document.addEventListener('click', (e) => {
+                if (!customSelect.contains(e.target)) selectItems.classList.remove('active');
+            });
+            selectItems.addEventListener('click', (e) => {
+                let target = e.target.closest('.select-item');
+                if (!target) return;
+                document.querySelectorAll('.select-item').forEach(el => el.classList.remove('selected'));
+                target.classList.add('selected');
+                updateSelectedDisplay(target.dataset.title);
+            });
+
+            buildSelect();
+            updateSendButtonState();
+            inputBox.focus();
+
+            document.addEventListener('gesturestart', (e) => e.preventDefault());
+            document.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 1) e.preventDefault();
+            }, { passive: false });
+            document.addEventListener('gesturechange', (e) => e.preventDefault());
+            document.addEventListener('gestureend', (e) => e.preventDefault());
+        })();
+    </script>
+</body>
+</html>
