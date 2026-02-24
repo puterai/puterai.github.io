@@ -12,8 +12,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         ::selection { background: #c9e0ff; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f0f4f8;  /* 新背景色 */
+            font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f0f4f8;
             color: #1e2a3a;
             padding-top: 70px;
             padding-bottom: 140px;
@@ -24,12 +24,12 @@
             left: 0;
             right: 0;
             padding: 12px 15px;
-            background: #f0f4f8;  /* 与body统一 */
+            background: #f0f4f8;
             display: flex;
             align-items: center;
             z-index: 1000;
         }
-        /* 左侧纯Gemini文字按钮 — 无悬停提示，点击刷新 */
+        /* 左侧Gemini文字按钮 — 使用Google Symbols风格 (实际用文字) */
         .gemini-btn {
             font-size: 24px;
             font-weight: 500;
@@ -40,87 +40,11 @@
             cursor: pointer;
             margin-right: 20px;
             padding: 4px 0;
-            /* 类似Google Sans风格，但使用系统字体 */
             font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         .gemini-btn:hover {
             opacity: 0.8;
         }
-        /* 自定义选择器 — 基本保留原风格，背景微调 */
-        .custom-select {
-            position: relative;
-            width: fit-content;
-            margin-left: auto;  /* 靠右 */
-        }
-        .select-selected {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 24px;
-            background: rgba(255,255,255,0.7);
-            backdrop-filter: blur(4px);
-            font-size: 18px;
-            height: 44px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            white-space: nowrap;
-            border: 1px solid #d0d9e8;
-        }
-        .select-selected:hover {
-            background: #e2e8f0;
-        }
-        .select-selected .version {
-            font-weight: 400;
-            color: #2c3e5c;
-        }
-        .select-selected::after {
-            content: "";
-            width: 20px;
-            height: 20px;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%232c3e5c" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>') no-repeat center/contain;
-            margin-left: 10px;
-            flex-shrink: 0;
-        }
-        .select-items {
-            position: absolute;
-            top: calc(100% + 4px);
-            right: 0;           /* 右对齐更自然 */
-            width: 260px;
-            background: #ffffff;
-            border: 1px solid #cfddee;
-            border-radius: 16px;
-            max-height: 300px;
-            overflow-y: auto;
-            box-shadow: 0 8px 24px rgba(0,20,40,0.15);
-            z-index: 100;
-            display: none;
-        }
-        .select-items.active { display: block; }
-        .select-item {
-            padding: 12px 18px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            position: relative;
-            border-bottom: 1px solid #f0f4fa;
-        }
-        .select-item:last-child { border-bottom: none; }
-        .select-item:hover { background: #f0f6ff; }
-        .select-item.selected { background: #e9f0fe; }
-        .select-item.selected::after {
-            content: "";
-            position: absolute;
-            right: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 16px;
-            height: 16px;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%231a73e8" stroke-width="2.5"><path d="M4 12l5 5 11-11"/></svg>') no-repeat center/contain;
-        }
-        .item-title { font-weight: 600; font-size: 15px; color: #0b2b4a; }
-        .item-desc { font-size: 12px; color: #4a5e7a; margin-top: 4px; }
 
         .chat-container {
             height: calc(100vh - 210px);
@@ -151,6 +75,7 @@
             background: #d9e6f5;
             border: 1px solid #b9cfec;
         }
+        /* 模型标签 — 只有pro显示思考时间，无request行 */
         .model-tag {
             background: transparent;
             color: #1e3b5c;
@@ -162,7 +87,6 @@
             margin-bottom: 6px;
             font-weight: 450;
         }
-        .model-tag div:first-child { font-weight: 500; }
         .msg-text { font-size: 16px; line-height: 1.5; color: #102331; }
         .thinking-dot {
             width: 10px;
@@ -180,7 +104,7 @@
         .welcome-message {
             text-align: center;
             padding: 40px 20px;
-            color: #173457;
+            color: #000000; /* 黑色 */
             font-size: 28px;
             font-weight: 350;
             margin: 120px auto auto auto;
@@ -193,41 +117,133 @@
             left: 0;
             right: 0;
             padding: 15px 20px;
-            background: #f0f4f8;  /* 一致背景 */
+            background: #f0f4f8;
             z-index: 1000;
-            border-top: 1px solid #d3e0ee;
+            /* 去掉分割线 */
         }
-        /* 联网按钮已彻底移除 */
+        /* 输入容器 */
         .input-container {
             display: flex;
             align-items: flex-start;
             position: relative;
             max-width: 860px;
             margin: 0 auto;
+            background: white;
+            border-radius: 32px;
+            border: 1px solid #c7d6e8;
         }
         .input-box {
             flex: 1;
             min-height: 52px;
             max-height: 132px;
-            padding: 14px 55px 14px 20px;
-            border: 1px solid #c7d6e8;
-            border-radius: 32px;
+            padding: 14px 16px 14px 8px;  /* 左侧留出空间给模型选择器 */
+            border: none;
             resize: none;
             font-size: 16px;
             font-family: inherit;
-            background: white;
+            background: transparent;
             color: #001b36;
             line-height: 1.5;
-            box-shadow: 0 2px 8px rgba(0,20,40,0.05);
+            outline: none;  /* 去掉焦点外发光 */
         }
-        .input-box:focus { outline: none; border-color: #4f8cff; box-shadow: 0 2px 12px rgba(26,115,232,0.15); }
+        /* 模型选择触发器（嵌入输入框左侧） */
+        .model-picker-trigger {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 10px 8px 16px;
+            border-radius: 32px;
+            background: transparent;
+            cursor: pointer;
+            user-select: none;
+            font-size: 16px;
+            color: #1e3a5f;
+            font-weight: 500;
+            transition: background 0.1s;
+            white-space: nowrap;
+        }
+        .model-picker-trigger:hover {
+            background: #e2e8f0;  /* 浅灰 */
+        }
+        .model-picker-trigger .arrow {
+            width: 20px;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%232c3e5c" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>') no-repeat center/contain;
+            transition: transform 0.2s;
+        }
+        /* 展开面板 (向上) */
+        .model-picker-dropdown {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 0;
+            width: 280px;
+            background: #e9eef6;
+            border-radius: 20px;
+            padding: 8px 0;
+            box-shadow: 0 8px 24px rgba(0,20,40,0.2);
+            display: none;
+            z-index: 1100;
+        }
+        .model-picker-dropdown.active {
+            display: block;
+        }
+        /* 顶部 Gemini 3 纯文本（不可选） */
+        .dropdown-header {
+            padding: 12px 16px 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #3c5a7d;
+            letter-spacing: 0.2px;
+            border-bottom: 1px solid #d0ddee;
+            margin-bottom: 4px;
+        }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+        .dropdown-item:hover {
+            background: #d8dde4;
+        }
+        .item-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .item-title {
+            font-weight: 500;
+            font-size: 15px;
+            color: #0b2b4a;
+        }
+        .item-desc {
+            font-size: 12px;
+            color: #4a5e7a;
+            margin-top: 2px;
+        }
+        .check-mark {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #0b57d0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .check-mark svg {
+            width: 14px;
+            height: 14px;
+            fill: white;
+        }
         .send-button {
             position: absolute;
             right: 12px;
             bottom: 10px;
             border: none;
             border-radius: 50%;
-            background: #1a73e8;
+            background: #f0f4f9;  /* 浅灰背景 */
             width: 36px;
             height: 36px;
             cursor: pointer;
@@ -236,8 +252,11 @@
             justify-content: center;
             transition: background 0.1s;
         }
-        .send-button:disabled { background: #a0b9d6; cursor: not-allowed; }
-        .send-button svg { fill: white; width: 20px; height: 20px; }
+        .send-button:hover {
+            background: #e2e8f0;
+        }
+        .send-button:disabled { background: #d0dae8; cursor: not-allowed; }
+        .send-button svg { fill: #000000; width: 20px; height: 20px; } /* 黑色箭头 */
         .footer {
             text-align: center;
             padding: 14px 15px 6px;
@@ -252,24 +271,47 @@
 </head>
 <body>
     <div class="header">
-        <!-- 左上角纯Gemini文字按钮，点击刷新页面（无悬停提示） -->
+        <!-- 左上角Gemini文字按钮，点击刷新 -->
         <button class="gemini-btn" id="geminiRefreshBtn">Gemini</button>
-
-        <!-- 模型选择下拉框 (仅两个Gemini模型) -->
-        <div class="custom-select" id="customSelect">
-            <div class="select-selected" id="selectSelected">Gemini <span class="version">3 Flash Preview</span></div>
-            <div class="select-items" id="selectItems"></div>
-        </div>
+        <!-- 头部不再放置模型选择器，已移到输入框 -->
     </div>
     
     <div class="chat-container" id="chatContainer">
-        <!-- 固定欢迎语 -->
+        <!-- 固定欢迎语 (黑色) -->
         <div class="welcome-message" id="welcomeMessage">认识 Gemini：你的私人 AI 助理</div>
     </div>
     
     <div class="bottom-section">
-        <!-- 联网按钮已完全移除，联网始终开启 -->
-        <div class="input-container">
+        <div class="input-container" id="inputContainer">
+            <!-- 嵌入模型选择触发器 -->
+            <div class="model-picker-trigger" id="modelPickerTrigger">
+                <span id="selectedModelLabel">快速</span>
+                <span class="arrow"></span>
+            </div>
+            <!-- 下拉菜单 (向上展开) -->
+            <div class="model-picker-dropdown" id="modelPickerDropdown">
+                <div class="dropdown-header">Gemini 3</div>
+                <div class="dropdown-item" data-model="gemini-3-flash-preview" data-label="快速">
+                    <div class="item-info">
+                        <span class="item-title">快速</span>
+                        <span class="item-desc">快速回答</span>
+                    </div>
+                    <!-- 选中标记动态显示 -->
+                    <span class="check-mark" style="display: none;" id="checkFlash">
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                    </span>
+                </div>
+                <div class="dropdown-item" data-model="gemini-3.1-pro-preview" data-label="Pro">
+                    <div class="item-info">
+                        <span class="item-title">Pro</span>
+                        <span class="item-desc">使用 3.1 Pro 处理高阶数学和代码任务</span>
+                    </div>
+                    <span class="check-mark" style="display: none;" id="checkPro">
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                    </span>
+                </div>
+            </div>
+
             <textarea class="input-box" id="inputBox" placeholder="问问 Gemini 3" rows="2"></textarea>
             <button class="send-button" id="sendButton">
                 <svg viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.58L20 12l-8-8-8 8z"></path></svg>
@@ -296,54 +338,50 @@
                 return html.replace(/@@KATEX_(\d+)@@/g, (match) => formulas[match] || match);
             }
 
-            // 模型定义 —— 仅保留两个Gemini模型
+            // 模型定义
             const MODEL_NAMES = {
                 'gemini-3-flash-preview': 'Gemini 3 Flash Preview',
                 'gemini-3.1-pro-preview': 'Gemini 3.1 Pro Preview'
             };
-            const MODEL_LIST = [
-                { id: 'gemini-3-flash-preview', title: 'Flash Preview', desc: '快速响应，日常助理' },
-                { id: 'gemini-3.1-pro-preview', title: 'Pro Preview', desc: '复杂推理，深度分析' }
-            ];
             
             const chatContainer = document.getElementById('chatContainer');
             const inputBox = document.getElementById('inputBox');
             const sendBtn = document.getElementById('sendButton');
             const welcome = document.getElementById('welcomeMessage');
-            const selectSelected = document.getElementById('selectSelected');
-            const selectItems = document.getElementById('selectItems');
-            const customSelect = document.getElementById('customSelect');
             const geminiRefreshBtn = document.getElementById('geminiRefreshBtn');
 
-            // ---------- token计数规则：英文字母/符号=1，中文字/符号=2 ----------
-            const MAX_TOKENS = 32768;
+            // 模型选择器相关元素
+            const pickerTrigger = document.getElementById('modelPickerTrigger');
+            const dropdown = document.getElementById('modelPickerDropdown');
+            const selectedLabelSpan = document.getElementById('selectedModelLabel');
+            const checkFlash = document.getElementById('checkFlash');
+            const checkPro = document.getElementById('checkPro');
+            const flashItem = document.querySelector('.dropdown-item[data-model="gemini-3-flash-preview"]');
+            const proItem = document.querySelector('.dropdown-item[data-model="gemini-3.1-pro-preview"]');
 
+            // 当前模型ID
+            let currentModelId = 'gemini-3-flash-preview';  // 默认flash
+
+            // token计数
+            const MAX_TOKENS = 32768;
             function countTokens(text) {
                 if (!text) return 0;
                 let tokens = 0;
                 for (let i = 0; i < text.length; i++) {
                     const code = text.charCodeAt(i);
-                    if ((code >= 0x4E00 && code <= 0x9FFF) ||  
-                        (code >= 0x3400 && code <= 0x4DBF) ||  
-                        (code >= 0x20000 && code <= 0x2A6DF) || 
-                        (code >= 0x3000 && code <= 0x303F) ||  
-                        (code >= 0xFF00 && code <= 0xFFEF)) {  
+                    if ((code >= 0x4E00 && code <= 0x9FFF) || (code >= 0x3400 && code <= 0x4DBF) || (code >= 0x20000 && code <= 0x2A6DF) || (code >= 0x3000 && code <= 0x303F) || (code >= 0xFF00 && code <= 0xFFEF)) {
                         tokens += 2;
                     } else {
-                        tokens += 1; 
+                        tokens += 1;
                     }
                 }
                 return tokens;
             }
 
             let messages = [];
-
             function messagesToText() {
-                return messages.map(msg => {
-                    return (msg.role === 'user' ? '用户: ' : 'AI: ') + msg.content;
-                }).join('\n');
+                return messages.map(msg => (msg.role === 'user' ? '用户: ' : 'AI: ') + msg.content).join('\n');
             }
-
             function trimMessagesIfNeeded(limit = MAX_TOKENS) {
                 let total = messages.reduce((sum, msg) => sum + msg.tokens, 0);
                 while (total > limit && messages.length >= 2) {
@@ -358,64 +396,68 @@
             }
 
             let isThinking = false;
-            // 联网始终开启 (webEnabled = true)，无切换按钮
+            let firstMessageSent = false;  // 标记是否已发送过消息（用于隐藏欢迎语）
 
-            // 欢迎语固定
-            welcome.textContent = '认识 Gemini：你的私人 AI 助理';
-
+            // 更新发送按钮状态
             function updateSendButtonState() {
                 sendBtn.disabled = isThinking || !inputBox.value.trim();
             }
 
+            // 创建模型标签 — 只有pro显示思考时间，flash无标签
             function createModelTag(modelId, elapsedSeconds = null) {
-                let div = document.createElement('div');
-                div.className = 'model-tag';
-                let line1 = document.createElement('div');
-                line1.style.fontWeight = 'bold';
-                line1.textContent = `Request for ${MODEL_NAMES[modelId] || modelId}`;
-                div.appendChild(line1);
-                // Pro模型显示思考耗时
                 if (modelId === 'gemini-3.1-pro-preview' && elapsedSeconds !== null) {
-                    let line2 = document.createElement('div');
+                    let div = document.createElement('div');
+                    div.className = 'model-tag';
                     let minutes = Math.floor(elapsedSeconds / 60), seconds = elapsedSeconds % 60;
-                    line2.textContent = `Reasoned for ${minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`}`;
-                    div.appendChild(line2);
+                    div.textContent = `Reasoned for ${minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`}`;
+                    return div;
                 }
-                return div;
+                return null; // 其他模型不显示任何tag
             }
 
-            function updateSelectedDisplay(title) {
-                //  title 例如 "Flash Preview" 或 "Pro Preview"
-                selectSelected.innerHTML = `Gemini&nbsp;<span class="version">${title}</span>`;
+            // 更新下拉菜单选中标记
+            function updateDropdownSelection(modelId) {
+                checkFlash.style.display = modelId === 'gemini-3-flash-preview' ? 'flex' : 'none';
+                checkPro.style.display = modelId === 'gemini-3.1-pro-preview' ? 'flex' : 'none';
+                // 更新触发器显示文字
+                selectedLabelSpan.textContent = modelId === 'gemini-3-flash-preview' ? '快速' : 'Pro';
             }
 
-            // 构建下拉选项 (只含两个模型，无折叠)
-            function buildSelect() {
-                selectItems.innerHTML = '';
-                MODEL_LIST.forEach(item => {
-                    let opt = document.createElement('div');
-                    opt.className = 'select-item';
-                    opt.dataset.value = item.id;
-                    opt.dataset.title = item.title;      // 用于显示简标
-                    opt.innerHTML = `<span class="item-title">${item.title}</span><span class="item-desc">${item.desc}</span>`;
-                    selectItems.appendChild(opt);
-                });
+            // 点击触发器切换下拉菜单
+            pickerTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle('active');
+            });
 
-                // 默认选中第一个 (Flash Preview)
-                const firstItem = document.querySelector('.select-item[data-value="gemini-3-flash-preview"]');
-                if (firstItem) {
-                    firstItem.classList.add('selected');
-                    updateSelectedDisplay('Flash Preview');
+            // 点击文档关闭下拉
+            document.addEventListener('click', (e) => {
+                if (!pickerTrigger.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.remove('active');
                 }
-            }
+            });
 
-            function getFinalModel() {
-                let sel = document.querySelector('.select-item.selected');
-                return sel ? sel.dataset.value : 'gemini-3-flash-preview';
-            }
+            // 选项点击
+            flashItem.addEventListener('click', () => {
+                currentModelId = 'gemini-3-flash-preview';
+                updateDropdownSelection(currentModelId);
+                dropdown.classList.remove('active');
+            });
+            proItem.addEventListener('click', () => {
+                currentModelId = 'gemini-3.1-pro-preview';
+                updateDropdownSelection(currentModelId);
+                dropdown.classList.remove('active');
+            });
 
+            // 初始化选中标记
+            updateDropdownSelection(currentModelId);
+
+            // 添加消息到界面
             function addMessage(text, isUser = false) {
-                // 用户第一次发送消息时欢迎语保留隐藏 (已由外层处理)
+                // 如果是用户第一条消息，隐藏欢迎语
+                if (isUser && !firstMessageSent) {
+                    welcome.style.display = 'none';
+                    firstMessageSent = true;
+                }
                 let row = document.createElement('div');
                 row.className = `msg-row ${isUser ? 'user' : 'ai'}`;
                 let bubble = document.createElement('div');
@@ -433,9 +475,10 @@
                 row.appendChild(bubble);
                 chatContainer.appendChild(row);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
-                return msgText; 
+                return msgText;
             }
 
+            // 发送消息
             async function send() {
                 if (isThinking) return;
                 let text = inputBox.value.trim();
@@ -444,14 +487,13 @@
                 inputBox.value = '';
                 inputBox.style.height = '';
                 addMessage(text, true); // 用户消息
-                let finalModel = getFinalModel();
 
                 trimMessagesIfNeeded(MAX_TOKENS);
 
                 isThinking = true;
                 updateSendButtonState();
 
-                // 黑色呼吸圆点 (思考中)
+                // 呼吸圆点
                 let thinkingRow = document.createElement('div');
                 thinkingRow.className = 'msg-row ai';
                 thinkingRow.innerHTML = '<div class="thinking-dot"></div>';
@@ -460,11 +502,10 @@
 
                 let opts = { 
                     stream: true, 
-                    model: finalModel,
+                    model: currentModelId,
                     tools: [{ type: 'web_search' }]  // 联网始终开启
                 };
-                // 保留原driver设定（可选）
-                if (finalModel.includes('gemini-')) opts.driver = 'openrouter';  // 兼容puter
+                if (currentModelId.includes('gemini-')) opts.driver = 'openrouter';
 
                 const startTime = Date.now();
                 let firstChunkReceived = false;
@@ -508,7 +549,7 @@
                         if (thinkingRow) thinkingRow.remove();
                         addMessage('模型返回了空响应', false);
                     } else {
-                        // 正常结束，插入模型标签
+                        // 记录token
                         const userTokens = countTokens(text);
                         const assistantTokens = countTokens(full);
                         messages.push({ role: 'user', content: text, tokens: userTokens });
@@ -516,8 +557,10 @@
                         trimMessagesIfNeeded(MAX_TOKENS);
 
                         let elapsed = Math.floor((Date.now() - startTime) / 1000);
-                        let tag = createModelTag(finalModel, finalModel === 'gemini-3.1-pro-preview' ? elapsed : null);
-                        bubbleRow.insertBefore(tag, bubbleRow.firstChild);
+                        let tag = createModelTag(currentModelId, elapsed);
+                        if (tag) {
+                            bubbleRow.insertBefore(tag, bubbleRow.firstChild);
+                        }
                     }
 
                 } catch (err) {
@@ -543,31 +586,12 @@
                 }
             });
             sendBtn.addEventListener('click', send);
+            geminiRefreshBtn.addEventListener('click', () => location.reload());
 
-            // Gemini 文字按钮点击刷新页面 (无提示)
-            geminiRefreshBtn.addEventListener('click', () => {
-                location.reload();
-            });
-
-            selectSelected.addEventListener('click', (e) => {
-                e.stopPropagation();
-                selectItems.classList.toggle('active');
-            });
-            document.addEventListener('click', (e) => {
-                if (!customSelect.contains(e.target)) selectItems.classList.remove('active');
-            });
-            selectItems.addEventListener('click', (e) => {
-                let target = e.target.closest('.select-item');
-                if (!target) return;
-                document.querySelectorAll('.select-item').forEach(el => el.classList.remove('selected'));
-                target.classList.add('selected');
-                updateSelectedDisplay(target.dataset.title);
-            });
-
-            buildSelect();
             updateSendButtonState();
             inputBox.focus();
 
+            // 禁止双指缩放
             document.addEventListener('gesturestart', (e) => e.preventDefault());
             document.addEventListener('touchmove', (e) => {
                 if (e.touches.length > 1) e.preventDefault();
