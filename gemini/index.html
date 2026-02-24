@@ -46,7 +46,7 @@
         }
         .gemini-btn {
             font-size: 24px;
-            font-weight: 500; /* 使用 Medium 字重 */
+            font-weight: 500;
             letter-spacing: -0.02em;
             background: transparent;
             border: none;
@@ -119,7 +119,7 @@
             padding: 40px 20px;
             color: #000000;
             font-size: 28px;
-            font-weight: 500; /* 改为 Medium 字重 */
+            font-weight: 500;
             margin: 120px auto auto auto;
             max-width: 700px;
             line-height: 1.4;
@@ -193,7 +193,7 @@
             width: 280px;
             background: #e9eef6;
             border-radius: 20px;
-            padding: 8px 0 0 0;  /* 移除底部内边距，消除缝隙 */
+            padding: 8px 0 0 0;
             box-shadow: 0 8px 24px rgba(0,20,40,0.2);
             display: none;
             z-index: 1100;
@@ -338,6 +338,8 @@
                 }).replace(/\\\[([\s\S]*?)\\\]/g, (m, p) => {
                     try { let h = katex.renderToString(p, { displayMode: true, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
                 }).replace(/\\\(([\s\S]*?)\\\)/g, (m, p) => {
+                    try { let h = katex.renderToString(p, { displayMode: false, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
+                }).replace(/\$([^\$]+?)\$/g, (m, p) => {
                     try { let h = katex.renderToString(p, { displayMode: false, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
                 });
                 let html = marked.parse(text);
