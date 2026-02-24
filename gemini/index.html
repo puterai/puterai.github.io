@@ -31,7 +31,7 @@
         }
         .gemini-btn {
             font-size: 24px;
-            font-weight: 500;
+            font-weight: 700;
             letter-spacing: -0.02em;
             background: transparent;
             border: none;
@@ -104,7 +104,7 @@
             padding: 40px 20px;
             color: #000000;
             font-size: 28px;
-            font-weight: 350;
+            font-weight: 700;
             margin: 120px auto auto auto;
             max-width: 700px;
             line-height: 1.4;
@@ -156,7 +156,7 @@
             user-select: none;
             font-size: 16px;
             color: #1e3a5f;
-            font-weight: 500;
+            font-weight: 400;
             transition: background 0.1s;
             white-space: nowrap;
             z-index: 2;
@@ -189,10 +189,9 @@
         .dropdown-header {
             padding: 8px 16px 4px;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 400;
             color: #3c5a7d;
             letter-spacing: 0.2px;
-            /* 移除分隔线和多余间隙 */
         }
         .dropdown-item {
             display: flex;
@@ -210,7 +209,7 @@
             flex-direction: column;
         }
         .item-title {
-            font-weight: 500;
+            font-weight: 400;
             font-size: 15px;
             color: #0b2b4a;
         }
@@ -278,12 +277,10 @@
     
     <div class="bottom-section">
         <div class="input-container" id="inputContainer">
-            <!-- 模型触发器现在通过CSS定位在右侧 -->
             <div class="model-picker-trigger" id="modelPickerTrigger">
                 <span id="selectedModelLabel">快速</span>
                 <span class="arrow"></span>
             </div>
-            <!-- 下拉菜单 (向上展开) -->
             <div class="model-picker-dropdown" id="modelPickerDropdown">
                 <div class="dropdown-header">Gemini 3</div>
                 <div class="dropdown-item" data-model="gemini-3-flash-preview" data-label="快速">
@@ -315,6 +312,18 @@
     </div>
 
     <script>
+        @font-face {
+            font-family: 'Google Sans';
+            src: url('GoogleSans-Regular.ttf') format('truetype');
+            font-weight: 400;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Google Sans';
+            src: url('GoogleSans-Bold.ttf') format('truetype');
+            font-weight: 700;
+            font-style: normal;
+        }
         (function() {
             marked.setOptions({ breaks: true, gfm: true });
 
