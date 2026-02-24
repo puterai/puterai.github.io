@@ -308,6 +308,8 @@
                     try { let h = katex.renderToString(p, { displayMode: true, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
                 }).replace(/\\\(([\s\S]*?)\\\)/g, (m, p) => {
                     try { let h = katex.renderToString(p, { displayMode: false, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
+                }).replace(/\$([^\$]+?)\$/g, (m, p) => {
+                    try { let h = katex.renderToString(p, { displayMode: false, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
                 });
                 let html = marked.parse(text);
                 return html.replace(/@@KATEX_(\d+)@@/g, (match) => formulas[match] || match);
