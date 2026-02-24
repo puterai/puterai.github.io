@@ -29,7 +29,6 @@
             align-items: center;
             z-index: 1000;
         }
-        /* 左侧Gemini文字按钮 — 使用Google Symbols风格 (实际用文字) */
         .gemini-btn {
             font-size: 24px;
             font-weight: 500;
@@ -75,7 +74,6 @@
             background: #d9e6f5;
             border: 1px solid #b9cfec;
         }
-        /* 模型标签 — 只有pro显示思考时间，无request行 */
         .model-tag {
             background: transparent;
             color: #1e3b5c;
@@ -104,7 +102,7 @@
         .welcome-message {
             text-align: center;
             padding: 40px 20px;
-            color: #000000; /* 黑色 */
+            color: #000000;
             font-size: 28px;
             font-weight: 350;
             margin: 120px auto auto auto;
@@ -119,9 +117,7 @@
             padding: 15px 20px;
             background: #f0f4f8;
             z-index: 1000;
-            /* 去掉分割线 */
         }
-        /* 输入容器 */
         .input-container {
             display: flex;
             align-items: flex-start;
@@ -136,7 +132,7 @@
             flex: 1;
             min-height: 52px;
             max-height: 132px;
-            padding: 14px 16px 14px 8px;  /* 左侧留出空间给模型选择器 */
+            padding: 14px 150px 14px 20px; /* 右侧留出足够空间给触发器和发送按钮 */
             border: none;
             resize: none;
             font-size: 16px;
@@ -144,14 +140,17 @@
             background: transparent;
             color: #001b36;
             line-height: 1.5;
-            outline: none;  /* 去掉焦点外发光 */
+            outline: none;
         }
-        /* 模型选择触发器（嵌入输入框左侧） */
+        /* 模型触发器 — 绝对定位在发送按钮左侧 */
         .model-picker-trigger {
+            position: absolute;
+            right: 60px;          /* 发送按钮宽度36px + 间距 */
+            bottom: 10px;
             display: flex;
             align-items: center;
             gap: 4px;
-            padding: 8px 10px 8px 16px;
+            padding: 4px 10px 4px 12px;
             border-radius: 32px;
             background: transparent;
             cursor: pointer;
@@ -161,21 +160,23 @@
             font-weight: 500;
             transition: background 0.1s;
             white-space: nowrap;
+            z-index: 2;
         }
         .model-picker-trigger:hover {
-            background: #e2e8f0;  /* 浅灰 */
+            background: #e2e8f0;
         }
         .model-picker-trigger .arrow {
             width: 20px;
             height: 20px;
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%232c3e5c" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>') no-repeat center/contain;
             transition: transform 0.2s;
+            flex-shrink: 0;
         }
-        /* 展开面板 (向上) */
+        /* 下拉菜单 — 向上展开，右对齐触发器 */
         .model-picker-dropdown {
             position: absolute;
             bottom: calc(100% + 8px);
-            left: 0;
+            right: 0;
             width: 280px;
             background: #e9eef6;
             border-radius: 20px;
@@ -187,15 +188,13 @@
         .model-picker-dropdown.active {
             display: block;
         }
-        /* 顶部 Gemini 3 纯文本（不可选） */
         .dropdown-header {
-            padding: 12px 16px 8px;
+            padding: 8px 16px 4px;
             font-size: 14px;
             font-weight: 500;
             color: #3c5a7d;
             letter-spacing: 0.2px;
-            border-bottom: 1px solid #d0ddee;
-            margin-bottom: 4px;
+            /* 移除分隔线和多余间隙 */
         }
         .dropdown-item {
             display: flex;
@@ -243,7 +242,7 @@
             bottom: 10px;
             border: none;
             border-radius: 50%;
-            background: #f0f4f9;  /* 浅灰背景 */
+            background: #f0f4f9;
             width: 36px;
             height: 36px;
             cursor: pointer;
@@ -251,12 +250,13 @@
             align-items: center;
             justify-content: center;
             transition: background 0.1s;
+            z-index: 2;
         }
         .send-button:hover {
             background: #e2e8f0;
         }
         .send-button:disabled { background: #d0dae8; cursor: not-allowed; }
-        .send-button svg { fill: #000000; width: 20px; height: 20px; } /* 黑色箭头 */
+        .send-button svg { fill: #000000; width: 20px; height: 20px; }
         .footer {
             text-align: center;
             padding: 14px 15px 6px;
@@ -271,19 +271,16 @@
 </head>
 <body>
     <div class="header">
-        <!-- 左上角Gemini文字按钮，点击刷新 -->
         <button class="gemini-btn" id="geminiRefreshBtn">Gemini</button>
-        <!-- 头部不再放置模型选择器，已移到输入框 -->
     </div>
     
     <div class="chat-container" id="chatContainer">
-        <!-- 固定欢迎语 (黑色) -->
         <div class="welcome-message" id="welcomeMessage">认识 Gemini：你的私人 AI 助理</div>
     </div>
     
     <div class="bottom-section">
         <div class="input-container" id="inputContainer">
-            <!-- 嵌入模型选择触发器 -->
+            <!-- 模型触发器现在通过CSS定位在右侧 -->
             <div class="model-picker-trigger" id="modelPickerTrigger">
                 <span id="selectedModelLabel">快速</span>
                 <span class="arrow"></span>
@@ -296,7 +293,6 @@
                         <span class="item-title">快速</span>
                         <span class="item-desc">快速回答</span>
                     </div>
-                    <!-- 选中标记动态显示 -->
                     <span class="check-mark" style="display: none;" id="checkFlash">
                         <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
                     </span>
@@ -338,7 +334,6 @@
                 return html.replace(/@@KATEX_(\d+)@@/g, (match) => formulas[match] || match);
             }
 
-            // 模型定义
             const MODEL_NAMES = {
                 'gemini-3-flash-preview': 'Gemini 3 Flash Preview',
                 'gemini-3.1-pro-preview': 'Gemini 3.1 Pro Preview'
@@ -350,7 +345,6 @@
             const welcome = document.getElementById('welcomeMessage');
             const geminiRefreshBtn = document.getElementById('geminiRefreshBtn');
 
-            // 模型选择器相关元素
             const pickerTrigger = document.getElementById('modelPickerTrigger');
             const dropdown = document.getElementById('modelPickerDropdown');
             const selectedLabelSpan = document.getElementById('selectedModelLabel');
@@ -359,10 +353,8 @@
             const flashItem = document.querySelector('.dropdown-item[data-model="gemini-3-flash-preview"]');
             const proItem = document.querySelector('.dropdown-item[data-model="gemini-3.1-pro-preview"]');
 
-            // 当前模型ID
-            let currentModelId = 'gemini-3-flash-preview';  // 默认flash
+            let currentModelId = 'gemini-3-flash-preview';
 
-            // token计数
             const MAX_TOKENS = 32768;
             function countTokens(text) {
                 if (!text) return 0;
@@ -396,14 +388,12 @@
             }
 
             let isThinking = false;
-            let firstMessageSent = false;  // 标记是否已发送过消息（用于隐藏欢迎语）
+            let firstMessageSent = false;
 
-            // 更新发送按钮状态
             function updateSendButtonState() {
                 sendBtn.disabled = isThinking || !inputBox.value.trim();
             }
 
-            // 创建模型标签 — 只有pro显示思考时间，flash无标签
             function createModelTag(modelId, elapsedSeconds = null) {
                 if (modelId === 'gemini-3.1-pro-preview' && elapsedSeconds !== null) {
                     let div = document.createElement('div');
@@ -412,31 +402,26 @@
                     div.textContent = `Reasoned for ${minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`}`;
                     return div;
                 }
-                return null; // 其他模型不显示任何tag
+                return null;
             }
 
-            // 更新下拉菜单选中标记
             function updateDropdownSelection(modelId) {
                 checkFlash.style.display = modelId === 'gemini-3-flash-preview' ? 'flex' : 'none';
                 checkPro.style.display = modelId === 'gemini-3.1-pro-preview' ? 'flex' : 'none';
-                // 更新触发器显示文字
                 selectedLabelSpan.textContent = modelId === 'gemini-3-flash-preview' ? '快速' : 'Pro';
             }
 
-            // 点击触发器切换下拉菜单
             pickerTrigger.addEventListener('click', (e) => {
                 e.stopPropagation();
                 dropdown.classList.toggle('active');
             });
 
-            // 点击文档关闭下拉
             document.addEventListener('click', (e) => {
                 if (!pickerTrigger.contains(e.target) && !dropdown.contains(e.target)) {
                     dropdown.classList.remove('active');
                 }
             });
 
-            // 选项点击
             flashItem.addEventListener('click', () => {
                 currentModelId = 'gemini-3-flash-preview';
                 updateDropdownSelection(currentModelId);
@@ -448,12 +433,9 @@
                 dropdown.classList.remove('active');
             });
 
-            // 初始化选中标记
             updateDropdownSelection(currentModelId);
 
-            // 添加消息到界面
             function addMessage(text, isUser = false) {
-                // 如果是用户第一条消息，隐藏欢迎语
                 if (isUser && !firstMessageSent) {
                     welcome.style.display = 'none';
                     firstMessageSent = true;
@@ -478,7 +460,6 @@
                 return msgText;
             }
 
-            // 发送消息
             async function send() {
                 if (isThinking) return;
                 let text = inputBox.value.trim();
@@ -486,14 +467,13 @@
 
                 inputBox.value = '';
                 inputBox.style.height = '';
-                addMessage(text, true); // 用户消息
+                addMessage(text, true);
 
                 trimMessagesIfNeeded(MAX_TOKENS);
 
                 isThinking = true;
                 updateSendButtonState();
 
-                // 呼吸圆点
                 let thinkingRow = document.createElement('div');
                 thinkingRow.className = 'msg-row ai';
                 thinkingRow.innerHTML = '<div class="thinking-dot"></div>';
@@ -503,7 +483,7 @@
                 let opts = { 
                     stream: true, 
                     model: currentModelId,
-                    tools: [{ type: 'web_search' }]  // 联网始终开启
+                    tools: [{ type: 'web_search' }]
                 };
                 if (currentModelId.includes('gemini-')) opts.driver = 'openrouter';
 
@@ -549,7 +529,6 @@
                         if (thinkingRow) thinkingRow.remove();
                         addMessage('模型返回了空响应', false);
                     } else {
-                        // 记录token
                         const userTokens = countTokens(text);
                         const assistantTokens = countTokens(full);
                         messages.push({ role: 'user', content: text, tokens: userTokens });
@@ -573,7 +552,6 @@
                 }
             }
 
-            // 事件绑定
             inputBox.addEventListener('input', () => {
                 inputBox.style.height = 'auto';
                 inputBox.style.height = Math.min(inputBox.scrollHeight, 132) + 'px';
@@ -591,7 +569,6 @@
             updateSendButtonState();
             inputBox.focus();
 
-            // 禁止双指缩放
             document.addEventListener('gesturestart', (e) => e.preventDefault());
             document.addEventListener('touchmove', (e) => {
                 if (e.touches.length > 1) e.preventDefault();
