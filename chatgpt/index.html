@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>ChatGPT</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="icon" href="favicon.png" type="image/png">
     <link rel="stylesheet" href="/lib/katex/katex.min.css">
     <script src="/lib/katex/katex.min.js"></script>
@@ -18,7 +18,6 @@
             height: 100%;
             overflow: hidden;
             margin: 0;
-            /* 不再使用padding-bottom，布局全靠fixed + 绝对计算 */
         }
         .header {
             position: fixed;
@@ -31,6 +30,7 @@
             align-items: center;
             z-index: 1000;
             height: 70px;
+            border-bottom: 1px solid #f0f0f0;
         }
         .new-chat-btn {
             width: 40px;
@@ -139,17 +139,24 @@
         }
         .item-title { font-weight: 600; font-size: 14px; }
         .item-desc { font-size: 11px; color: #666; margin-top: 2px; }
-        /* 聊天容器：绝对定位，由JS动态设置top/height */
+        
+        /* 对话区 - 使用绝对定位 + top/bottom 确保完美贴合 */
         .chat-container {
-            position: absolute;
+            position: fixed;
+            top: 70px;  /* 等于 header 高度 */
+            bottom: 0;   /* 默认值，后面用JS精确覆盖 */
             left: 0;
             right: 0;
             overflow-y: auto;
             padding: 15px;
             display: flex;
             flex-direction: column;
-            /* top 和 height 由JS动态计算并内联设置 */
+            /* 底部留一点内边距让最后一条消息不贴边 */
+            padding-bottom: 30px;
+            /* 初始底部值会被JS覆盖 */
+            bottom: 140px;
         }
+        
         .msg-row {
             width: 100%;
             margin-bottom: 16px;
@@ -203,6 +210,8 @@
             font-size: 28px;
             margin: 120px auto auto auto;
         }
+        
+        /* 底部固定区域 */
         .bottom-section {
             position: fixed;
             bottom: 0;
@@ -211,7 +220,7 @@
             padding: 15px;
             background: #fff;
             z-index: 1000;
-            /* 高度自适应，不设固定 */
+            border-top: 1px solid #f0f0f0;
         }
         .web-search-toggle {
             border: 1px solid #d0d0d0;
@@ -274,6 +283,7 @@
             color: #666;
         }
 
+        /* 复制按钮样式 */
         .copy-btn {
             width: 18px;
             height: 18px;
@@ -338,6 +348,7 @@
         </div>
     </div>
     
+    <!-- 聊天容器 - 位置由JS精确控制 -->
     <div class="chat-container" id="chatContainer">
         <div class="welcome-message" id="welcomeMessage"></div>
     </div>
@@ -396,9 +407,9 @@
             const selectSelected = document.getElementById('selectSelected');
             const selectItems = document.getElementById('selectItems');
             const customSelect = document.getElementById('customSelect');
-            const headerEl = document.querySelector('.header');
-            const bottomEl = document.getElementById('bottomSection');
+            const bottomSection = document.getElementById('bottomSection');
 
+            // token计数规则：英文字母/符号=1，中文字/符号=2，其他=1
             const MAX_TOKENS = 32768;
 
             function countTokens(text) {
@@ -555,6 +566,7 @@
                 return svg;
             }
 
+            // 添加消息（用户/助手），带复制按钮
             function addMessage(text, isUser = false) {
                 if (isUser && !hasSent) {
                     welcome.style.display = 'none';
@@ -593,87 +605,207 @@
                 chatContainer.scrollTop = chatContainer.scrollHeight;
                 return msgText; 
             }
-            
-            function setChatContainerRect() {
-                // 获取头部实际高度（包括padding）
-                const headerRect = headerEl.getBoundingClientRect();
-                const headerBottom = headerRect.bottom; // 头部底部相对于视口顶部的距离
 
-                // 获取底部栏实际高度（包括padding）
-                const bottomRect = bottomEl.getBoundingClientRect();
-                const bottomTop = bottomRect.top; // 底部栏顶部相对于视口顶部的距离
-
-                const top = headerBottom;
-                const height = bottomTop - headerBottom;
-
-                // 直接设置内联样式，覆盖任何CSS
-                chatContainer.style.top = top + 'px';
-                chatContainer.style.height = height + 'px';
+            // ========== 核心修复：精确计算聊天区域高度 ==========
+            function updateChatContainerHeight() {
+                // 获取头部实际高度 (可能因内容变化，但header固定70px，用offsetHeight更稳妥)
+                const headerHeight = document.querySelector('.header').offsetHeight;
+                // 获取底部区域实际高度 (包括内边距)
+                const bottomHeight = bottomSection.offsetHeight;
+                
+                // 设置聊天容器的位置：top = 头部高度，bottom = 底部高度
+                chatContainer.style.top = headerHeight + 'px';
+                chatContainer.style.bottom = bottomHeight + 'px';
+                
+                // 确保滚动位置正确（如果之前已经滚到底部，重新计算后可能会偏移，稍后恢复）
+                // 记录滚动比例或者直接尝试保持底部可见，但不做复杂处理
             }
 
-            // 监听所有可能改变布局的事件
-            window.addEventListener('resize', () => {
-                setChatContainerRect();
+            // 监听 resize 和键盘弹出事件
+            window.addEventListener('resize', function() {
+                updateChatContainerHeight();
+                // 如果当前接近底部，保持底部可见
+                if (chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight < 50) {
+                    setTimeout(() => {
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }, 50);
+                }
             });
 
-            // 移动端键盘弹出时，输入框聚焦，但setChatContainerRect已经能正确计算
-            // 增加一个微小的延迟，等待键盘动画完成
-            inputBox.addEventListener('focus', () => {
-                setTimeout(setChatContainerRect, 100);
-            });
-            inputBox.addEventListener('blur', () => {
-                // 键盘收起时重新计算
-                setTimeout(setChatContainerRect, 50);
+            // 输入框获得焦点（移动端键盘弹出）时重新计算
+            inputBox.addEventListener('focus', function() {
+                // 延迟执行以等待键盘动画完成
+                setTimeout(updateChatContainerHeight, 100);
+                setTimeout(() => {
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }, 150);
             });
 
-            // 初始化立即执行，并在DOM完全加载后再次执行
-            setChatContainerRect();
-            // 某些浏览器图片/字体加载可能影响高度，延迟再执行一次
-            setTimeout(setChatContainerRect, 50);
-            setTimeout(setChatContainerRect, 200);
-            const originalAddMessage = addMessage;
-            addMessage = function(text, isUser) {
-                const result = originalAddMessage(text, isUser);
-                setChatContainerRect(); // 确保容器尺寸正确
-                return result;
-            };
+            inputBox.addEventListener('blur', function() {
+                // 键盘收回后重新计算
+                setTimeout(updateChatContainerHeight, 50);
+            });
 
-            const originalSend = send;
-            send = async function() {
-                await originalSend();
-                setChatContainerRect(); // 发送完成后重新计算
-            };
-            // 重新绑定事件监听
-            sendBtn.removeEventListener('click', send);
-            sendBtn.addEventListener('click', send);
-            inputBox.removeEventListener('keydown', inputBox._keydownHandler);
+            // 初始调用
+            updateChatContainerHeight();
+            // ==================================================
+
+            async function send() {
+                if (isThinking) return;
+                let text = inputBox.value.trim();
+                if (!text) return;
+
+                inputBox.value = '';
+                inputBox.style.height = '';
+                addMessage(text, true);
+                let finalModel = getFinalModel();
+
+                trimMessagesIfNeeded(MAX_TOKENS);
+
+                isThinking = true;
+                updateSendButtonState();
+
+                let thinkingRow = document.createElement('div');
+                thinkingRow.className = 'msg-row ai';
+                thinkingRow.innerHTML = '<div class="thinking-dot"></div>';
+                chatContainer.appendChild(thinkingRow);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                let opts = { stream: true, model: finalModel };
+                if (finalModel.includes('gpt-5.')) opts.driver = 'openrouter';
+                if (webEnabled) opts.tools = [{ type: 'web_search' }];
+
+                const startTime = Date.now();
+                let firstChunkReceived = false;
+                let bubbleRow = null;
+                let msgText = null;
+                let full = '';
+
+                try {
+                    let history = messagesToText();
+                    let prompt = history ? history + '\n' : '';
+                    prompt += '用户: ' + text + '\nAI: ';
+
+                    let res = await puter.ai.chat(prompt, opts);
+                    
+                    for await (let part of res) {
+                        if (!firstChunkReceived) {
+                            thinkingRow.remove();
+                            thinkingRow = null;
+
+                            let row = document.createElement('div');
+                            row.className = 'msg-row ai';
+                            let bubble = document.createElement('div');
+                            bubble.className = 'msg-bubble';
+                            msgText = document.createElement('div');
+                            msgText.className = 'msg-text';
+                            bubble.appendChild(msgText);
+                            row.appendChild(bubble);
+                            chatContainer.appendChild(row);
+                            bubbleRow = row;
+                            firstChunkReceived = true;
+                        }
+
+                        if (part?.text) {
+                            full += part.text;
+                            msgText.innerHTML = renderMarkdownWithMath(full);
+                            chatContainer.scrollTop = chatContainer.scrollHeight;
+                        }
+                    }
+
+                    if (!firstChunkReceived) {
+                        if (thinkingRow) thinkingRow.remove();
+                        addMessage('模型返回了空响应', false);
+                    } else {
+                        const userTokens = countTokens(text);
+                        const assistantTokens = countTokens(full);
+                        messages.push({ role: 'user', content: text, tokens: userTokens });
+                        messages.push({ role: 'assistant', content: full, tokens: assistantTokens });
+                        trimMessagesIfNeeded(MAX_TOKENS);
+
+                        let elapsed = Math.floor((Date.now() - startTime) / 1000);
+                        let tag = createModelTag(finalModel, finalModel === 'gpt-5.2-pro' ? elapsed : null);
+                        bubbleRow.insertBefore(tag, bubbleRow.firstChild);
+
+                        let copyBtn = document.createElement('button');
+                        copyBtn.className = 'copy-btn';
+                        copyBtn.appendChild(createCopySVG());
+                        copyBtn.dataset.original = full;
+                        copyBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const txt = e.currentTarget.dataset.original;
+                            if (txt && navigator.clipboard) {
+                                navigator.clipboard.writeText(txt).catch(() => {});
+                            }
+                        });
+                        bubbleRow.appendChild(copyBtn);
+                    }
+
+                } catch (err) {
+                    if (thinkingRow) thinkingRow.remove();
+                    addMessage('错误: ' + err.message, false);
+                } finally {
+                    isThinking = false;
+                    updateSendButtonState();
+                    inputBox.focus();
+                }
+            }
 
             inputBox.addEventListener('input', () => {
-                setChatContainerRect();
+                inputBox.style.height = 'auto';
+                inputBox.style.height = Math.min(inputBox.scrollHeight, 132) + 'px';
+                updateSendButtonState();
+            });
+            inputBox.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey && !isThinking && !/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                    e.preventDefault();
+                    send();
+                }
+            });
+            sendBtn.addEventListener('click', send);
+            webToggle.addEventListener('click', () => {
+                webEnabled = !webEnabled;
+                webToggle.classList.toggle('active', webEnabled);
+            });
+            newChat.addEventListener('click', () => {
+                location.reload();
             });
 
-            setChatContainerRect();
-            window.addEventListener('load', setChatContainerRect);
-
-            const observer = new MutationObserver(() => {
-                setChatContainerRect();
+            selectSelected.addEventListener('click', (e) => {
+                e.stopPropagation();
+                selectItems.classList.toggle('active');
             });
-            observer.observe(chatContainer, { childList: true, subtree: false });
+            document.addEventListener('click', (e) => {
+                if (!customSelect.contains(e.target)) selectItems.classList.remove('active');
+            });
+            selectItems.addEventListener('click', (e) => {
+                let target = e.target.closest('.select-item');
+                if (!target) return;
+                document.querySelectorAll('.select-item').forEach(el => el.classList.remove('selected'));
+                target.classList.add('selected');
+                updateSelectedDisplay(target.dataset.value);
+            });
 
-            setChatContainerRect();
+            buildSelect();
+            updateSendButtonState();
+            inputBox.focus();
         })();
 
+        // 防缩放
         document.addEventListener('gesturestart', function(e) {
             e.preventDefault();
         });
+        
         document.addEventListener('touchmove', function(e) {
             if (e.touches.length > 1) {
                 e.preventDefault();
             }
         }, { passive: false });
+        
         document.addEventListener('gesturechange', function(e) {
             e.preventDefault();
         });
+        
         document.addEventListener('gestureend', function(e) {
             e.preventDefault();
         });
