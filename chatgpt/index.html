@@ -13,51 +13,32 @@
         ::selection { background: #b8ddff; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #fff;
-            color: #000;
-            height: 100vh;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            padding-top: 70px;
-            padding-bottom: 140px;
+            background: #fff; color: #000;
+            padding: 70px 0 140px;
+            height: 100%; overflow: hidden;
         }
         .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            padding: 12px 15px;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            z-index: 1000;
+            position: fixed; top: 0; left: 0; right: 0;
+            padding: 12px 15px; background: #fff;
+            display: flex; align-items: center; z-index: 1000;
         }
         .new-chat-btn {
-            width: 40px; height: 40px; border-radius: 8px; background: #fff;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; border: none; margin-right: 15px; flex-shrink: 0;
-            position: relative;
+            width: 40px; height: 40px; border-radius: 8px;
+            background: #fff; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border: none; margin-right: 15px; flex-shrink: 0; position: relative;
         }
         .new-chat-btn:hover { background: #e5e5e5; }
         .new-chat-btn:hover::after {
-            content: '新聊天';
-            position: absolute;
-            bottom: -34px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #000;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: bold;
+            content: '新聊天'; position: absolute; bottom: -38px; left: 50%;
+            transform: translateX(-50%); background: #000; color: white;
+            padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold;
             white-space: nowrap;
         }
         .custom-select { position: relative; width: fit-content; }
         .select-selected {
             padding: 8px 12px; border: none; border-radius: 8px; background: #fff;
-            font-size: 20px; height: 44px; cursor: pointer; display: flex;
-            align-items: center; white-space: nowrap;
+            font-size: 20px; height: 44px; cursor: pointer;
+            display: flex; align-items: center; white-space: nowrap;
         }
         .select-selected:hover { background: #e5e5e5; }
         .select-selected .version { font-weight: 400; color: #3c3c3c; }
@@ -73,8 +54,14 @@
             z-index: 100; display: none;
         }
         .select-items.active { display: block; }
-        .select-group { color: #1a1a1a; font-size: 14px; font-weight: 600; padding: 10px 14px 5px; cursor: default; background: #fff; border-bottom: 1px solid #eaeaea; }
-        .select-item { padding: 10px 30px 10px 14px; cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; position: relative; }
+        .select-group {
+            color: #1a1a1a; font-size: 14px; font-weight: 600;
+            padding: 10px 14px 5px; cursor: default; background: #fff; border-bottom: 1px solid #eaeaea;
+        }
+        .select-item {
+            padding: 10px 30px 10px 14px; cursor: pointer;
+            display: flex; flex-direction: column; align-items: flex-start; position: relative;
+        }
         .select-item:hover { background: #f5f5f5; }
         .select-item.selected { background: #f0f0f0; }
         .select-item.selected::after {
@@ -85,63 +72,75 @@
         .item-title { font-weight: 600; font-size: 14px; }
         .item-desc { font-size: 11px; color: #666; margin-top: 2px; }
         .chat-container {
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
+            height: calc(100vh - 210px); overflow-y: auto;
+            padding: 15px; display: flex; flex-direction: column;
+            -webkit-overflow-scrolling: touch; /* 修复移动端滚动卡顿/划不到底 */
         }
-        .msg-row { width: 100%; margin-bottom: 16px; display: flex; flex-direction: column; align-items: flex-start; }
+        .msg-row {
+            width: 100%; margin-bottom: 16px;
+            display: flex; flex-direction: column; align-items: flex-start;
+        }
         .msg-row.user { align-items: flex-end; }
-        .msg-bubble { max-width: 85%; background: #f5f5f5; border-radius: 10px; padding: 16px; word-wrap: break-word; width: fit-content; }
+        .msg-bubble {
+            max-width: 85%; background: #f5f5f5; border-radius: 10px;
+            padding: 16px; word-wrap: break-word; width: fit-content;
+        }
         .msg-bubble.user { background: #e0e0e0; }
-        .model-tag { background: transparent; border: 1px solid #ccc; border-radius: 8px; padding: 6px 12px; font-size: 16px; width: 80%; margin-bottom: 4px; }
+        .model-tag {
+            background: transparent; border: 1px solid #ccc; border-radius: 8px;
+            padding: 6px 12px; font-size: 16px; width: 80%; margin-bottom: 4px;
+        }
         .model-tag div:first-child { font-weight: bold; }
         .msg-text { font-size: 16px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
-        .thinking-dot { width: 10px; height: 10px; background: black; border-radius: 50%; margin: 0 0 16px 0; animation: breathe 1.2s ease-in-out infinite; }
-        @keyframes breathe { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
-        .welcome-message { text-align: center; padding: 40px 20px; color: #000; font-size: 28px; margin: 120px auto auto auto; }
-        .bottom-section {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 15px;
-            background: #fff;
-            z-index: 1000;
+        .thinking-dot {
+            width: 10px; height: 10px; background: black; border-radius: 50%;
+            margin: 0 0 16px 0; animation: breathe 1.2s ease-in-out infinite;
         }
-        .web-search-toggle { border: 1px solid #d0d0d0; border-radius: 18px; background: #fff; padding: 8px 12px; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; height: 36px; margin-bottom: 8px; }
+        @keyframes breathe { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .welcome-message {
+            text-align: center; padding: 40px 20px; color: #000;
+            font-size: 28px; margin: 120px auto auto auto;
+        }
+        .bottom-section {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            padding: 15px; background: #fff; z-index: 1000;
+        }
+        .web-search-toggle {
+            border: 1px solid #d0d0d0; border-radius: 18px; background: #fff;
+            padding: 8px 12px; font-size: 14px; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 4px; height: 36px; margin-bottom: 8px;
+        }
         .web-search-toggle.active { background: #e3f2fd; color: #1565c0; border-color: #1565c0; }
         .input-container { display: flex; align-items: flex-start; position: relative; }
         .input-box {
-            flex: 1; min-height: 48px; max-height: 132px; padding: 10px 50px 10px 15px;
-            border: 1px solid #d0d0d0; border-radius: 24px; resize: none; font-size: 16px;
-            font-family: inherit; background: #fff; color: #000; line-height: 1.4;
+            flex: 1; min-height: 48px; max-height: 132px;
+            padding: 10px 50px 10px 15px; border: 1px solid #d0d0d0; border-radius: 24px;
+            resize: none; font-size: 16px; font-family: inherit; background: #fff; color: #000;
+            line-height: 1.4;
         }
         .input-box:focus { outline: none; border-color: #888; }
         .send-button {
-            position: absolute; right: 10px; bottom: 8px; border: none; border-radius: 50%;
-            background: #000; width: 32px; height: 32px; cursor: pointer;
+            position: absolute; right: 10px; bottom: 8px;
+            border: none; border-radius: 50%; background: #000;
+            width: 32px; height: 32px; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
         }
         .send-button:disabled { background: #ccc; cursor: not-allowed; }
         .send-button svg { fill: white; width: 18px; height: 18px; }
         .footer { text-align: center; padding: 12px 15px 0; font-size: 12px; color: #666; }
-        .copy-btn { width: 18px; height: 18px; background: none; border: none; cursor: pointer; margin-top: 4px; position: relative; flex-shrink: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+        .copy-btn {
+            width: 18px; height: 18px; background: none; border: none;
+            cursor: pointer; margin-top: 4px; position: relative;
+            flex-shrink: 0; padding: 0; display: inline-flex;
+            align-items: center; justify-content: center;
+        }
         .copy-btn svg { width: 18px; height: 18px; display: block; }
         .copy-btn svg path { fill: #777777; stroke: #777777; stroke-width: 0.5; }
         .copy-btn:hover::after {
-            content: '复制';
-            position: absolute;
-            bottom: -34px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #000;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: bold;
-            white-space: nowrap;
-            z-index: 100;
+            content: '复制'; position: absolute; bottom: -34px; left: 50%;
+            transform: translateX(-50%); background: #000; color: white;
+            padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: bold;
+            white-space: nowrap; z-index: 100;
         }
         .msg-row.ai .copy-btn { align-self: flex-start; }
         .msg-row.user .copy-btn { align-self: flex-end; }
@@ -151,7 +150,7 @@
     <div class="header">
         <button class="new-chat-btn" id="newChatBtn"><img src="icon.png" width="20" height="20" alt="new"></button>
         <div class="custom-select" id="customSelect">
-            <div class="select-selected" id="selectSelected">ChatGPT&nbsp;<span class="version">5.2 Instant</span></div>
+            <div class="select-selected" id="selectSelected">ChatGPT <span class="version">5.2 Instant</span></div>
             <div class="select-items" id="selectItems"></div>
         </div>
     </div>
@@ -162,211 +161,163 @@
             <textarea class="input-box" id="inputBox" placeholder="有问题，尽管问" rows="2"></textarea>
             <button class="send-button" id="sendButton"><svg viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.58L20 12l-8-8-8 8z"></path></svg></button>
         </div>
-        <div class="footer">ChatGPT 也可能会犯错。请核查重要信息。</div>
+        <div class="footer">ChatGPT 也可能会犯错。请核查重要信息。查看 Cookie 首选项。</div>
     </div>
     <script>
-        (function(){
-            const markedOpt = { breaks: true, gfm: true };
-            marked.setOptions(markedOpt);
-            const renderMath = (text) => {
-                if (!katex) return marked.parse(text);
+        (function() {
+            marked.setOptions({ breaks: true, gfm: true });
+            const renderMarkdownWithMath = (text) => {
+                if (!window.katex) return marked.parse(text);
                 let formulas = {}, idx = 0;
-                const replacer = (m, p, display) => {
-                    try { let h = katex.renderToString(p, { displayMode: display, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
-                };
-                text = text.replace(/\$\$([\s\S]*?)\$\$/g, (m,p)=>replacer(m,p,true))
-                           .replace(/\\\[([\s\S]*?)\\\]/g, (m,p)=>replacer(m,p,true))
-                           .replace(/\\\(([\s\S]*?)\\\)/g, (m,p)=>replacer(m,p,false))
-                           .replace(/\$([^\$]+?)\$/g, (m,p)=>replacer(m,p,false));
-                return marked.parse(text).replace(/@@KATEX_(\d+)@@/g, (_,n)=>formulas[`@@KATEX_${n}@@`]||_);
+                text = text.replace(/\$\$([\s\S]*?)\$\$|\\\[([\s\S]*?)\\\]|\\\(([\s\S]*?)\\\)|\$([^\$]+?)\$/g, (m, p1, p2, p3, p4) => {
+                    let expr = p1 || p2 || p3 || p4;
+                    try {
+                        let html = katex.renderToString(expr, { displayMode: !!p1||!!p2, throwOnError: false });
+                        let ph = `@@KATEX_${idx++}@@`;
+                        formulas[ph] = html;
+                        return ph;
+                    } catch { return m; }
+                });
+                return marked.parse(text).replace(/@@KATEX_(\d+)@@/g, (_, id) => formulas[`@@KATEX_${id}@@`] || '');
             };
 
-            const MODEL_NAMES = { 'gpt-5.2-chat':'GPT-5.2 Instant','gpt-5.2':'GPT-5.2 Thinking','gpt-5.2-pro':'GPT-5.2 Pro','gpt-5.1-chat-latest':'GPT-5.1 Instant','gpt-5.1':'GPT-5.1 Thinking','gpt-4o':'GPT-4o' };
-            const MODEL_LIST = [
-                { id:'gpt-5.2-chat', title:'Instant', desc:'即刻回答' },
-                { id:'gpt-5.2', title:'Thinking', desc:'思考更充分，回答更优质' },
-                { id:'gpt-5.2-pro', title:'Pro', desc:'研究级智能模型' }
-            ];
-            const legacyModels = [
-                { value:'gpt-5.1-chat-latest', title:'GPT-5.1 Instant' },
-                { value:'gpt-5.1', title:'GPT-5.1 Thinking' },
-                { value:'gpt-4o', title:'GPT-4o' }
-            ];
+            const MODEL_NAMES = { 'gpt-5.2-chat':'GPT-5.2 Instant', 'gpt-5.2':'GPT-5.2 Thinking', 'gpt-5.2-pro':'GPT-5.2 Pro', 'gpt-5.1-chat-latest':'GPT-5.1 Instant', 'gpt-5.1':'GPT-5.1 Thinking', 'gpt-4o':'GPT-4o' };
+            const MODEL_LIST = [{ id:'gpt-5.2-chat', title:'Instant', desc:'即刻回答' }, { id:'gpt-5.2', title:'Thinking', desc:'思考更充分，回答更优质' }, { id:'gpt-5.2-pro', title:'Pro', desc:'研究级智能模型' }];
 
-            const chatContainer = document.getElementById('chatContainer');
-            const inputBox = document.getElementById('inputBox');
-            const sendBtn = document.getElementById('sendButton');
-            const webToggle = document.getElementById('webSearchToggle');
-            const welcome = document.getElementById('welcomeMessage');
-            const newChat = document.getElementById('newChatBtn');
-            const selectSelected = document.getElementById('selectSelected');
-            const selectItems = document.getElementById('selectItems');
-            const customSelect = document.getElementById('customSelect');
+            const chatContainer = document.getElementById('chatContainer'), inputBox = document.getElementById('inputBox'), sendBtn = document.getElementById('sendButton'), webToggle = document.getElementById('webSearchToggle'), welcome = document.getElementById('welcomeMessage'), newChat = document.getElementById('newChatBtn'), selectSelected = document.getElementById('selectSelected'), selectItems = document.getElementById('selectItems'), customSelect = document.getElementById('customSelect');
 
             const MAX_TOKENS = 32768;
-            const countTokens = (t)=> [...t].reduce((a,c)=>a+(c.charCodeAt(0)>=0x4E00?2:1),0);
-            
+            const countTokens = (text) => (text || '').split('').reduce((sum, ch) => sum + (ch.charCodeAt(0) >= 0x4E00 ? 2 : 1), 0);
+
             let messages = [], isThinking = false, webEnabled = false, hasSent = false;
-            welcome.innerText = ['有什么可以帮忙的？','我们先从哪里开始呢？','准备好了','今天有什么计划？','您今天在想什么？'][Math.floor(Math.random()*5)];
+            welcome.textContent = ['有什么可以帮忙的？','我们先从哪里开始呢？','准备好了','今天有什么计划？','您今天在想什么？'][Math.floor(Math.random()*5)];
 
-            const updateSendBtn = ()=> sendBtn.disabled = isThinking || !inputBox.value.trim();
-            const getSelectedModel = ()=> document.querySelector('.select-item.selected')?.dataset.value || 'gpt-5.2-chat';
+            const updateSendBtn = () => sendBtn.disabled = isThinking || !inputBox.value.trim();
+            const getFinalModel = () => (document.querySelector('.select-item.selected') || { dataset: { value:'gpt-5.2-chat' } }).dataset.value;
 
-            const createModelTag = (modelId, elapsed) => {
-                let div = document.createElement('div');
-                div.className = 'model-tag';
-                div.innerHTML = `<div style="font-weight:bold;">Request for ${MODEL_NAMES[modelId]||modelId}</div>` + 
-                    (modelId==='gpt-5.2-pro'&&elapsed!==null? `<div>Reasoned for ${Math.floor(elapsed/60)}m ${elapsed%60}s</div>`:'');
-                return div;
+            const createCopyButton = (text) => {
+                let btn = document.createElement('button');
+                btn.className = 'copy-btn';
+                let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                svg.setAttribute('viewBox', '0 0 1024 1024');
+                svg.innerHTML = '<path d="M819.2 819.2v-68.266667h68.266667c40.96 0 68.266667-27.306667 68.266666-68.266666V136.533333c0-40.96-27.306667-68.266667-68.266666-68.266666H341.333333c-40.96 0-68.266667 27.306667-68.266666 68.266666v68.266667H204.8V136.533333c0-75.093333 61.44-136.533333 136.533333-136.533333h546.133334c75.093333 0 136.533333 61.44 136.533333 136.533333v546.133334c0 75.093333-61.44 136.533333-136.533333 136.533333h-68.26667z" fill="#777777" stroke="#777777" stroke-width="0.5"/><path d="M136.533333 204.8h546.133334c75.093333 0 136.533333 61.44 136.533333 136.533333v546.133334c0 75.093333-61.44 136.533333-136.533333 136.533333H136.533333c-75.093333 0-136.533333-61.44-136.533333-136.533333V341.333333c0-75.093333 61.44-136.533333 136.533333-136.533333z m0 68.266667c-40.96 0-68.266667 27.306667-68.266666 68.266666v546.133334c0 40.96 27.306667 68.266667 68.266666 68.266666h546.133334c40.96 0 68.266667-27.306667 68.266666-68.266666V341.333333c0-40.96-27.306667-68.266667-68.266666-68.266666H136.533333z" fill="#777777" stroke="#777777" stroke-width="0.5"/>';
+                btn.appendChild(svg);
+                btn.dataset.original = text;
+                btn.addEventListener('click', (e) => { let txt = e.currentTarget.dataset.original; if (txt && navigator.clipboard) navigator.clipboard.writeText(txt).catch(()=>{}); });
+                return btn;
             };
 
-            const makeCopySvg = ()=> {
-                let svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
-                svg.setAttribute('viewBox','0 0 1024 1024');
-                svg.setAttribute('width','18'); svg.setAttribute('height','18');
-                svg.innerHTML = '<path d="M819.2 819.2v-68.266667h68.266667c40.96 0 68.266667-27.306667 68.266666-68.266666V136.533333c0-40.96-27.306667-68.266667-68.266666-68.266666H341.333333c-40.96 0-68.266667 27.306667-68.266666 68.266666v68.266667H204.8V136.533333c0-75.093333 61.44-136.533333 136.533333-136.533333h546.133334c75.093333 0 136.533333 61.44 136.533333 136.533333v546.133334c0 75.093333-61.44 136.533333-136.533333 136.533333h-68.266667z" fill="#777777" stroke="#777777" stroke-width="0.5"/><path d="M136.533333 204.8h546.133334c75.093333 0 136.533333 61.44 136.533333 136.533333v546.133334c0 75.093333-61.44 136.533333-136.533333 136.533333H136.533333c-75.093333 0-136.533333-61.44-136.533333-136.533333V341.333333c0-75.093333 61.44-136.533333 136.533333-136.533333z m0 68.266667c-40.96 0-68.266667 27.306667-68.266666 68.266666v546.133334c0 40.96 27.306667 68.266667 68.266666 68.266666h546.133334c40.96 0 68.266667-27.306667 68.266666-68.266666V341.333333c0-40.96-27.306667-68.266667-68.266666-68.266666H136.533333z" fill="#777777" stroke="#777777" stroke-width="0.5"/>';
-                return svg;
-            };
-
-            const addMessage = (text, isUser, asMarkdown=false) => {
+            const addMessage = (text, isUser = false) => {
                 if (isUser && !hasSent) { welcome.style.display = 'none'; hasSent = true; }
                 let row = document.createElement('div');
-                row.className = `msg-row ${isUser?'user':'ai'}`;
+                row.className = `msg-row ${isUser ? 'user' : 'ai'}`;
                 let bubble = document.createElement('div');
-                bubble.className = `msg-bubble${isUser?' user':''}`;
+                bubble.className = `msg-bubble${isUser ? ' user' : ''}`;
                 let msgText = document.createElement('div');
                 msgText.className = 'msg-text';
-                if (asMarkdown) msgText.innerHTML = renderMath(text);
+                if (isUser) msgText.innerHTML = text.replace(/\n/g, '<br>');
                 else msgText.innerText = text;
                 bubble.appendChild(msgText);
                 row.appendChild(bubble);
-                let copyBtn = document.createElement('button');
-                copyBtn.className = 'copy-btn';
-                copyBtn.appendChild(makeCopySvg());
-                copyBtn.dataset.original = text;
-                copyBtn.onclick = (e)=> e.currentTarget.dataset.original && navigator.clipboard?.writeText(e.currentTarget.dataset.original);
-                row.appendChild(copyBtn);
+                row.appendChild(createCopyButton(text));
                 chatContainer.appendChild(row);
-                window.scrollTo(0, document.body.scrollHeight);
-                return msgText;
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                return { row, msgText };
             };
 
-            const send = async ()=>{
+            const trimMessagesIfNeeded = () => {
+                let total = messages.reduce((sum, m) => sum + m.tokens, 0);
+                while (total > MAX_TOKENS && messages.length >= 2) total -= messages.shift().tokens + messages.shift().tokens;
+                while (total > MAX_TOKENS && messages.length) total -= messages.shift().tokens;
+            };
+
+            const createModelTag = (modelId, elapsed) => {
+                let div = document.createElement('div'); div.className = 'model-tag';
+                let l1 = document.createElement('div'); l1.style.fontWeight = 'bold'; l1.textContent = `Request for ${MODEL_NAMES[modelId] || modelId}`; div.appendChild(l1);
+                if (modelId === 'gpt-5.2-pro' && elapsed !== null) {
+                    let l2 = document.createElement('div');
+                    let m = Math.floor(elapsed / 60), s = elapsed % 60;
+                    l2.textContent = `Reasoned for ${m > 0 ? `${m}m ${s}s` : `${s}s`}`; div.appendChild(l2);
+                } return div;
+            };
+
+            const updateSelectedDisplay = (modelId) => { let full = MODEL_NAMES[modelId] || modelId, ver = full.startsWith('GPT-') ? full.slice(4) : full; selectSelected.innerHTML = `ChatGPT&nbsp;<span class="version">${ver}</span>`; };
+
+            const buildSelect = () => {
+                selectItems.innerHTML = '<div class="select-group">GPT-5.2</div>';
+                MODEL_LIST.forEach(m => { let opt = document.createElement('div'); opt.className = 'select-item'; opt.dataset.value = m.id; opt.innerHTML = `<span class="item-title">${m.title}</span><span class="item-desc">${m.desc}</span>`; selectItems.appendChild(opt); });
+                let coll = document.createElement('div'); coll.style.borderTop = '1px solid #eaeaea';
+                let head = document.createElement('div'); head.className = 'select-group'; head.style.cssText = 'display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:8px 14px'; head.innerHTML = 'Legacy Models<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>';
+                let cont = document.createElement('div'); cont.style.display = 'none';
+                ['gpt-5.1-chat-latest','gpt-5.1','gpt-4o'].forEach(v => { let opt = document.createElement('div'); opt.className = 'select-item'; opt.dataset.value = v; opt.innerHTML = `<span class="item-title">${MODEL_NAMES[v]}</span>`; cont.appendChild(opt); });
+                head.addEventListener('click', (e) => { e.stopPropagation(); let hidden = cont.style.display === 'none'; cont.style.display = hidden ? 'block' : 'none'; head.lastElementChild.style.transform = hidden ? 'rotate(180deg)' : ''; });
+                coll.append(head, cont); selectItems.appendChild(coll);
+                document.querySelector('.select-item[data-value="gpt-5.2-chat"]').classList.add('selected');
+                updateSelectedDisplay('gpt-5.2-chat');
+            };
+
+            const send = async () => {
                 if (isThinking) return;
                 let text = inputBox.value.trim();
                 if (!text) return;
                 inputBox.value = ''; inputBox.style.height = '';
                 addMessage(text, true);
-                const finalModel = getSelectedModel();
-                messages = messages.slice(-MAX_TOKENS*2);
+                let finalModel = getFinalModel();
+                trimMessagesIfNeeded();
                 isThinking = true; updateSendBtn();
-                let thinkingRow = document.createElement('div');
-                thinkingRow.className = 'msg-row ai';
-                thinkingRow.innerHTML = '<div class="thinking-dot"></div>';
-                chatContainer.appendChild(thinkingRow);
-                window.scrollTo(0, document.body.scrollHeight);
+
+                let thinkingRow = document.createElement('div'); thinkingRow.className = 'msg-row ai'; thinkingRow.innerHTML = '<div class="thinking-dot"></div>';
+                chatContainer.appendChild(thinkingRow); chatContainer.scrollTop = chatContainer.scrollHeight;
+
                 let opts = { stream: true, model: finalModel };
                 if (finalModel.includes('gpt-5.')) opts.driver = 'openrouter';
                 if (webEnabled) opts.tools = [{ type: 'web_search' }];
+
                 const start = Date.now();
-                let full = '', first = false, bubbleRow, msgText;
+                let gotFirst = false, bubbleRow, msgText, full = '';
                 try {
-                    let history = messages.map(m=>(m.role==='user'?'用户: ':'AI: ')+m.content).join('\n');
-                    let prompt = (history?history+'\n':'') + '用户: ' + text + '\nAI: ';
+                    let history = messages.map(m => (m.role === 'user' ? '用户: ' : 'AI: ') + m.content).join('\n');
+                    let prompt = (history ? history + '\n' : '') + '用户: ' + text + '\nAI: ';
                     let res = await puter.ai.chat(prompt, opts);
                     for await (let part of res) {
-                        if (!first) {
+                        if (!gotFirst) {
                             thinkingRow.remove(); thinkingRow = null;
-                            bubbleRow = document.createElement('div'); bubbleRow.className = 'msg-row ai';
+                            let row = document.createElement('div'); row.className = 'msg-row ai';
                             let bubble = document.createElement('div'); bubble.className = 'msg-bubble';
                             msgText = document.createElement('div'); msgText.className = 'msg-text';
-                            bubble.appendChild(msgText); bubbleRow.appendChild(bubble);
-                            chatContainer.appendChild(bubbleRow);
-                            first = true;
+                            bubble.appendChild(msgText); row.appendChild(bubble); chatContainer.appendChild(row);
+                            bubbleRow = row; gotFirst = true;
                         }
-                        if (part?.text) {
-                            full += part.text;
-                            msgText.innerHTML = renderMath(full);
-                            window.scrollTo(0, document.body.scrollHeight);
-                        }
+                        if (part?.text) { full += part.text; msgText.innerHTML = renderMarkdownWithMath(full); chatContainer.scrollTop = chatContainer.scrollHeight; }
                     }
-                    if (!first) {
-                        thinkingRow?.remove();
-                        addMessage('模型返回了空响应', false);
-                    } else {
-                        messages.push({ role:'user', content:text, tokens:countTokens(text) });
-                        messages.push({ role:'assistant', content:full, tokens:countTokens(full) });
-                        let elapsed = Math.floor((Date.now()-start)/1000);
-                        let tag = createModelTag(finalModel, finalModel==='gpt-5.2-pro'?elapsed:null);
-                        bubbleRow.insertBefore(tag, bubbleRow.firstChild);
-                        let copyBtn = document.createElement('button');
-                        copyBtn.className = 'copy-btn';
-                        copyBtn.appendChild(makeCopySvg());
-                        copyBtn.dataset.original = full;
-                        copyBtn.onclick = (e)=> navigator.clipboard?.writeText(e.currentTarget.dataset.original);
-                        bubbleRow.appendChild(copyBtn);
+                    if (!gotFirst) { if (thinkingRow) thinkingRow.remove(); addMessage('模型返回了空响应', false); } 
+                    else {
+                        let userTokens = countTokens(text), asstTokens = countTokens(full);
+                        messages.push({ role:'user', content:text, tokens:userTokens }, { role:'assistant', content:full, tokens:asstTokens });
+                        trimMessagesIfNeeded();
+                        let elapsed = Math.floor((Date.now() - start) / 1000);
+                        bubbleRow.insertBefore(createModelTag(finalModel, finalModel === 'gpt-5.2-pro' ? elapsed : null), bubbleRow.firstChild);
+                        bubbleRow.appendChild(createCopyButton(full));
                     }
-                } catch (err) {
-                    thinkingRow?.remove();
-                    addMessage('错误: ' + err.message, false);
-                } finally {
-                    isThinking = false; updateSendBtn(); inputBox.focus();
-                }
+                } catch (err) { if (thinkingRow) thinkingRow.remove(); addMessage('错误: ' + err.message, false); } 
+                finally { isThinking = false; updateSendBtn(); inputBox.focus(); }
             };
 
-            inputBox.addEventListener('input', ()=>{
-                inputBox.style.height = 'auto';
-                inputBox.style.height = Math.min(inputBox.scrollHeight,132)+'px';
-                updateSendBtn();
-            });
-            inputBox.addEventListener('keydown', (e)=>{
-                if (e.key==='Enter' && !e.shiftKey && !isThinking && !/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                    e.preventDefault(); send();
-                }
-            });
+            inputBox.addEventListener('input', () => { inputBox.style.height = 'auto'; inputBox.style.height = Math.min(inputBox.scrollHeight, 132) + 'px'; updateSendBtn(); });
+            inputBox.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey && !isThinking && !/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) { e.preventDefault(); send(); } });
             sendBtn.addEventListener('click', send);
-            webToggle.addEventListener('click', ()=> {
-                webEnabled = !webEnabled;
-                webToggle.classList.toggle('active', webEnabled);
-            });
-            newChat.addEventListener('click', ()=> location.reload());
+            webToggle.addEventListener('click', () => { webEnabled = !webEnabled; webToggle.classList.toggle('active', webEnabled); });
+            newChat.addEventListener('click', () => location.reload());
+            selectSelected.addEventListener('click', (e) => { e.stopPropagation(); selectItems.classList.toggle('active'); });
+            document.addEventListener('click', (e) => { if (!customSelect.contains(e.target)) selectItems.classList.remove('active'); });
+            selectItems.addEventListener('click', (e) => { let t = e.target.closest('.select-item'); if (!t) return; document.querySelectorAll('.select-item').forEach(el => el.classList.remove('selected')); t.classList.add('selected'); updateSelectedDisplay(t.dataset.value); });
 
-            const buildSelect = ()=>{
-                selectItems.innerHTML = `
-                    <div class="select-group">GPT-5.2</div>
-                    ${MODEL_LIST.map(m=>`<div class="select-item" data-value="${m.id}"><span class="item-title">${m.title}</span><span class="item-desc">${m.desc}</span></div>`).join('')}
-                    <div style="border-top:1px solid #eaeaea">
-                        <div class="select-group" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:8px 14px" id="legacyHeader">Legacy Models <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
-                        <div id="legacyContent" style="display:none">${legacyModels.map(m=>`<div class="select-item" data-value="${m.value}"><span class="item-title">${m.title}</span></div>`).join('')}</div>
-                    </div>
-                `;
-                document.getElementById('legacyHeader').addEventListener('click', (e)=>{
-                    e.stopPropagation();
-                    let c = document.getElementById('legacyContent');
-                    c.style.display = c.style.display==='none'?'block':'none';
-                    e.currentTarget.querySelector('svg').style.transform = c.style.display==='block'?'rotate(180deg)':'';
-                });
-                document.querySelector('.select-item[data-value="gpt-5.2-chat"]')?.classList.add('selected');
-            };
-            buildSelect();
+            buildSelect(); updateSendBtn(); inputBox.focus();
 
-            selectSelected.addEventListener('click', (e)=> { e.stopPropagation(); selectItems.classList.toggle('active'); });
-            document.addEventListener('click', (e)=> { if (!customSelect.contains(e.target)) selectItems.classList.remove('active'); });
-            selectItems.addEventListener('click', (e)=> {
-                let target = e.target.closest('.select-item');
-                if (!target) return;
-                document.querySelectorAll('.select-item').forEach(el=>el.classList.remove('selected'));
-                target.classList.add('selected');
-                let full = MODEL_NAMES[target.dataset.value] || target.dataset.value;
-                let version = full.startsWith('GPT-')? full.substring(4) : full;
-                selectSelected.innerHTML = `ChatGPT&nbsp;<span class="version">${version}</span>`;
-            });
-
-            updateSendBtn();
-            inputBox.focus();
-
-            ['gesturestart','gesturechange','gestureend'].forEach(ev=>document.addEventListener(ev, e=>e.preventDefault()));
-            document.addEventListener('touchmove', e=> e.touches.length>1 && e.preventDefault(), { passive: false });
+            document.addEventListener('gesturestart', e => e.preventDefault());
+            document.addEventListener('touchmove', e => { if (e.touches.length > 1) e.preventDefault(); }, { passive: false });
+            document.addEventListener('gesturechange', e => e.preventDefault());
+            document.addEventListener('gestureend', e => e.preventDefault());
         })();
     </script>
 </body>
