@@ -266,30 +266,41 @@
             color: #666;
         }
 
-        /* 复制按钮样式 */
+        /* 复制按钮样式 —— 去掉背景加深，缩小尺寸，无圆角遮挡 */
         .copy-btn {
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            background: #fff url('copy.svg') no-repeat center/contain;
+            width: 18px;                /* 缩小尺寸 */
+            height: 18px;
+            background: none;            /* 完全透明背景，无加深 */
             border: none;
             cursor: pointer;
             margin-top: 4px;
             position: relative;
             flex-shrink: 0;
+            padding: 0;                  /* 去除内边距 */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
-        .copy-btn:hover {
-            background-color: #e5e5e5;
+        /* 完全使用内联SVG，不依赖外部文件 */
+        .copy-btn svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+        }
+        .copy-btn svg path {
+            fill: #777777;
+            stroke: #777777;
+            stroke-width: 0.5;
         }
         .copy-btn:hover::after {
             content: '复制';
             position: absolute;
-            bottom: -38px;
+            bottom: -34px;               /* 调整位置 */
             left: 50%;
             transform: translateX(-50%);
             background: #000;
             color: white;
-            padding: 6px 10px;
+            padding: 4px 8px;
             border-radius: 6px;
             font-size: 12px;
             font-weight: bold;
@@ -516,7 +527,28 @@
                 return sel ? sel.dataset.value : 'gpt-5.2-chat';
             }
 
-            // 新增：通用添加消息（用户或助手），自动附加复制按钮
+            function createCopySVG() {
+                const xmlns = "http://www.w3.org/2000/svg";
+                const svg = document.createElementNS(xmlns, "svg");
+                svg.setAttribute("viewBox", "0 0 1024 1024");
+                svg.setAttribute("width", "18");
+                svg.setAttribute("height", "18");
+                const path1 = document.createElementNS(xmlns, "path");
+                path1.setAttribute("d", "M819.2 819.2v-68.266667h68.266667c40.96 0 68.266667-27.306667 68.266666-68.266666V136.533333c0-40.96-27.306667-68.266667-68.266666-68.266666H341.333333c-40.96 0-68.266667 27.306667-68.266666 68.266666v68.266667H204.8V136.533333c0-75.093333 61.44-136.533333 136.533333-136.533333h546.133334c75.093333 0 136.533333 61.44 136.533333 136.533333v546.133334c0 75.093333-61.44 136.533333-136.533333 136.533333h-68.266667z");
+                path1.setAttribute("fill", "#777777");
+                path1.setAttribute("stroke", "#777777");
+                path1.setAttribute("stroke-width", "0.5");
+                const path2 = document.createElementNS(xmlns, "path");
+                path2.setAttribute("d", "M136.533333 204.8h546.133334c75.093333 0 136.533333 61.44 136.533333 136.533333v546.133334c0 75.093333-61.44 136.533333-136.533333 136.533333H136.533333c-75.093333 0-136.533333-61.44-136.533333-136.533333V341.333333c0-75.093333 61.44-136.533333 136.533333-136.533333z m0 68.266667c-40.96 0-68.266667 27.306667-68.266666 68.266666v546.133334c0 40.96 27.306667 68.266667 68.266666 68.266666h546.133334c40.96 0 68.266667-27.306667 68.266666-68.266666V341.333333c0-40.96-27.306667-68.266667-68.266666-68.266666H136.533333z");
+                path2.setAttribute("fill", "#777777");
+                path2.setAttribute("stroke", "#777777");
+                path2.setAttribute("stroke-width", "0.5");
+                svg.appendChild(path1);
+                svg.appendChild(path2);
+                return svg;
+            }
+
+            // 添加消息（用户/助手），带复制按钮（使用内联SVG）
             function addMessage(text, isUser = false) {
                 if (isUser && !hasSent) {
                     welcome.style.display = 'none';
@@ -530,19 +562,18 @@
                 msgText.className = 'msg-text';
                 
                 if (isUser) {
-                    // 用户消息保留原有换行处理
                     msgText.innerHTML = text.replace(/\n/g, '<br>');
                 } else {
-                    // 助手消息（错误或纯文本）使用innerText确保安全且保留换行
-                    msgText.innerText = text;
+                    msgText.innerText = text; // 错误消息等不渲染markdown
                 }
                 
                 bubble.appendChild(msgText);
                 row.appendChild(bubble);
                 
-                // 创建复制按钮
+                // 创建复制按钮（内联SVG）
                 let copyBtn = document.createElement('button');
                 copyBtn.className = 'copy-btn';
+                copyBtn.appendChild(createCopySVG());
                 copyBtn.dataset.original = text;
                 copyBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -565,7 +596,7 @@
 
                 inputBox.value = '';
                 inputBox.style.height = '';
-                addMessage(text, true); // 用户消息（自带复制按钮）
+                addMessage(text, true); // 用户消息带复制按钮
                 let finalModel = getFinalModel();
 
                 trimMessagesIfNeeded(MAX_TOKENS);
@@ -624,7 +655,7 @@
 
                     if (!firstChunkReceived) {
                         if (thinkingRow) thinkingRow.remove();
-                        addMessage('模型返回了空响应', false); // 自带复制按钮
+                        addMessage('模型返回了空响应', false);
                     } else {
                         // 记录token并修剪
                         const userTokens = countTokens(text);
@@ -637,10 +668,11 @@
                         let tag = createModelTag(finalModel, finalModel === 'gpt-5.2-pro' ? elapsed : null);
                         bubbleRow.insertBefore(tag, bubbleRow.firstChild);
 
-                        // 为助手消息添加复制按钮
+                        // 助手消息添加复制按钮（内联SVG）
                         let copyBtn = document.createElement('button');
                         copyBtn.className = 'copy-btn';
-                        copyBtn.dataset.original = full;  // 原始markdown文本
+                        copyBtn.appendChild(createCopySVG());
+                        copyBtn.dataset.original = full;
                         copyBtn.addEventListener('click', (e) => {
                             e.stopPropagation();
                             const txt = e.currentTarget.dataset.original;
@@ -653,7 +685,7 @@
 
                 } catch (err) {
                     if (thinkingRow) thinkingRow.remove();
-                    addMessage('错误: ' + err.message, false); // 自带复制按钮
+                    addMessage('错误: ' + err.message, false);
                 } finally {
                     isThinking = false;
                     updateSendButtonState();
