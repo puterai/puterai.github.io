@@ -9,26 +9,51 @@
     <script src="https://js.puter.com/v2/"></script>
     <script src="/lib/marked.min.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* 彻底重置所有外边距内边距，使用border-box */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
         ::selection { background: #b8ddff; }
+        
+        /* 关键修复：body和html高度锁定，禁止任何溢出 */
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;      /* 禁止body/html滚动 */
+            position: fixed;       /* 进一步锁定视口 */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #fff;
             color: #000;
-            /* 关键修复：body占满视口，使用flex列布局保证底部固定，中间滚动区自动伸缩 */
-            height: 100vh;
+            /* 弹性列布局，确保子元素填满且不溢出 */
             display: flex;
             flex-direction: column;
-            overflow: hidden;  /* 防止body滚动 */
+            /* 确保body大小精确等于视口 */
+            height: 100vh;
+            width: 100vw;
+            max-height: 100vh;
+            max-width: 100vw;
         }
+        
         .header {
-            flex-shrink: 0;
+            flex-shrink: 0;         /* 头部固定高度不压缩 */
             padding: 12px 15px;
             background: #fff;
             display: flex;
             align-items: center;
             z-index: 1000;
+            /* 确保头部不会溢出 */
+            width: 100%;
         }
+        
         .new-chat-btn {
             width: 40px;
             height: 40px;
@@ -58,6 +83,7 @@
             font-weight: bold;
             white-space: nowrap;
         }
+        
         .custom-select {
             position: relative;
             width: fit-content;
@@ -136,26 +162,33 @@
         }
         .item-title { font-weight: 600; font-size: 14px; }
         .item-desc { font-size: 11px; color: #666; margin-top: 2px; }
-        /* 修复点：聊天容器采用 flex:1 自动撑满剩余高度，配合 min-height:0 允许内部滚动 */
+        
+        /* 修复点：聊天容器flex:1自动填充剩余高度，同时设置min-height:0保证可滚动 */
         .chat-container {
             flex: 1;
-            min-height: 0;      /* 强制flex子项可收缩，否则滚动失效 */
+            min-height: 0;          /* 重要：允许flex子项收缩，否则内容过多会撑开父元素 */
             overflow-y: auto;
             padding: 15px;
             display: flex;
             flex-direction: column;
             width: 100%;
-            -webkit-overflow-scrolling: touch; /* 提升移动端滚动流畅度 */
+            -webkit-overflow-scrolling: touch;
+            /* 确保内容不会溢出容器宽度 */
+            max-width: 100%;
         }
+        
         .msg-row {
             width: 100%;
             margin-bottom: 16px;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            position: relative; /* 为复制按钮定位参考? 实际不用，但保留无妨 */
+            position: relative;
+            /* 确保消息行不会溢出 */
+            max-width: 100%;
         }
         .msg-row.user { align-items: flex-end; }
+        
         .msg-bubble {
             max-width: 85%;
             background: #f5f5f5;
@@ -163,8 +196,11 @@
             padding: 16px;
             word-wrap: break-word;
             width: fit-content;
+            /* 确保长单词换行 */
+            overflow-wrap: break-word;
         }
         .msg-bubble.user { background: #e0e0e0; }
+        
         .model-tag {
             background: transparent;
             border: 1px solid #ccc;
@@ -175,12 +211,15 @@
             margin-bottom: 4px;
         }
         .model-tag div:first-child { font-weight: bold; }
+        
         .msg-text {
             font-size: 16px;
             line-height: 1.5;
             white-space: pre-wrap;
             word-wrap: break-word;
+            overflow-wrap: break-word;
         }
+        
         .thinking-dot {
             width: 10px;
             height: 10px;
@@ -194,21 +233,27 @@
             50% { transform: scale(1.2); }
             100% { transform: scale(1); }
         }
+        
         .welcome-message {
             text-align: center;
             padding: 40px 20px;
             color: #000;
             font-size: 28px;
             margin: 120px auto auto auto;
+            max-width: 100%;
         }
-        /* 底部区域：固定在最下面，不随滚动移动 */
+        
+        /* 底部区域：绝对不压缩，固定在底部 */
         .bottom-section {
             flex-shrink: 0;
             padding: 15px;
             background: #fff;
             width: 100%;
-            border-top: 1px solid #f0f0f0; /* 轻微分割，美观 */
+            border-top: 1px solid #f0f0f0;
+            /* 确保底部不会溢出 */
+            max-width: 100%;
         }
+        
         .web-search-toggle {
             border: 1px solid #d0d0d0;
             border-radius: 18px;
@@ -227,11 +272,14 @@
             color: #1565c0;
             border-color: #1565c0;
         }
+        
         .input-container {
             display: flex;
             align-items: flex-start;
             position: relative;
+            width: 100%;
         }
+        
         .input-box {
             flex: 1;
             min-height: 48px;
@@ -245,8 +293,10 @@
             background: #fff;
             color: #000;
             line-height: 1.4;
+            width: 100%;
         }
         .input-box:focus { outline: none; border-color: #888; }
+        
         .send-button {
             position: absolute;
             right: 10px;
@@ -263,6 +313,7 @@
         }
         .send-button:disabled { background: #ccc; cursor: not-allowed; }
         .send-button svg { fill: white; width: 18px; height: 18px; }
+        
         .footer {
             text-align: center;
             padding: 12px 15px 0;
@@ -270,7 +321,7 @@
             color: #666;
         }
 
-        /* 复制按钮样式不变，完全透明 */
+        /* 复制按钮样式 */
         .copy-btn {
             width: 18px;
             height: 18px;
@@ -316,13 +367,16 @@
         .msg-row.user .copy-btn {
             align-self: flex-end;
         }
-        /* 移除旧的html/body overflow设置，已经用flex代替 */
+        
+        /* 确保所有元素都不会意外溢出 */
+        img, svg {
+            max-width: 100%;
+        }
     </style>
 </head>
 <body>
     <div class="header">
         <button class="new-chat-btn" id="newChatBtn">
-            <!-- 保留原有img，由于icon.png可能不存在，但用纯文本模拟 -->
             <img src="icon.png" width="20" height="20" alt="new" onerror="this.style.display='none';this.parentNode.innerHTML='+';">
         </button>
         <div class="custom-select" id="customSelect">
@@ -331,7 +385,7 @@
         </div>
     </div>
     
-    <!-- chat-container 现在由flex控制高度，不再用vh计算 -->
+    <!-- chat-container 现在由flex控制高度，确保不超出可视区域 -->
     <div class="chat-container" id="chatContainer">
         <div class="welcome-message" id="welcomeMessage"></div>
     </div>
@@ -731,6 +785,7 @@
             inputBox.focus();
         })();
 
+        // 阻止双指缩放，但不影响滚动
         document.addEventListener('gesturestart', function(e) {
             e.preventDefault();
         });
