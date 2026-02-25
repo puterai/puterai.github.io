@@ -338,7 +338,7 @@
             </div>
             <div class="model-picker-dropdown" id="modelPickerDropdown">
                 <div class="dropdown-header">Gemini 3</div>
-                <div class="dropdown-item" data-model="gemini-3-flash-preview" data-label="快速">
+                <div class="dropdown-item" data-model="google/gemini-3-flash-preview" data-label="快速">
                     <div class="item-info">
                         <span class="item-title">快速</span>
                         <span class="item-desc">快速回答</span>
@@ -347,7 +347,7 @@
                         <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
                     </span>
                 </div>
-                <div class="dropdown-item" data-model="gemini-3.1-pro-preview" data-label="Pro">
+                <div class="dropdown-item" data-model="google/gemini-3.1-pro-preview" data-label="Pro">
                     <div class="item-info">
                         <span class="item-title">Pro</span>
                         <span class="item-desc">使用 3.1 Pro 处理高阶数学和代码任务</span>
@@ -584,9 +584,7 @@
                 let opts = { 
                     stream: true, 
                     model: currentModelId,
-                    tools: [{ type: 'web_search' }]
                 };
-                if (currentModelId.includes('gemini-')) opts.driver = 'openrouter';
 
                 const startTime = Date.now();
                 let firstChunkReceived = false;
