@@ -10,377 +10,161 @@
     <script src="/lib/marked.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        ::selection { background: #b8ddff; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #fff;
             color: #000;
-            padding-top: 70px;
-            padding-bottom: 140px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
         }
+        ::selection { background: #b8ddff; }
         .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            flex-shrink: 0;
             padding: 12px 15px;
             background: #fff;
             display: flex;
             align-items: center;
-            z-index: 1000;
         }
         .new-chat-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            background: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: none;
-            margin-right: 15px;
-            flex-shrink: 0;
+            width: 40px; height: 40px; border-radius: 8px; background: #fff;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; border: none; margin-right: 15px; flex-shrink: 0;
             position: relative;
         }
         .new-chat-btn:hover { background: #e5e5e5; }
         .new-chat-btn:hover::after {
-            content: '新聊天';
-            position: absolute;
-            bottom: -38px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #000;
-            color: white;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: bold;
-            white-space: nowrap;
+            content: '新聊天'; position: absolute; bottom: -38px; left: 50%;
+            transform: translateX(-50%); background: #000; color: white;
+            padding: 6px 10px; border-radius: 6px; font-size: 12px; white-space: nowrap;
         }
-        .custom-select {
-            position: relative;
-            width: fit-content;
-        }
+        .custom-select { position: relative; width: fit-content; }
         .select-selected {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 8px;
-            background: #fff;
-            font-size: 20px;
-            height: 44px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            white-space: nowrap;
+            padding: 8px 12px; border: none; border-radius: 8px; background: #fff;
+            font-size: 20px; height: 44px; cursor: pointer; display: flex;
+            align-items: center; white-space: nowrap;
         }
-        .select-selected:hover {
-            background: #e5e5e5;
-        }
-        .select-selected .version {
-            font-weight: 400;
-            color: #3c3c3c;
-        }
+        .select-selected:hover { background: #e5e5e5; }
+        .select-selected .version { font-weight: 400; color: #3c3c3c; }
         .select-selected::after {
-            content: "";
-            width: 20px;
-            height: 20px;
+            content: ""; width: 20px; height: 20px;
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>') no-repeat center/contain;
-            margin-left: 10px;
-            flex-shrink: 0;
+            margin-left: 10px; flex-shrink: 0;
         }
         .select-items {
-            position: absolute;
-            top: calc(100% + 4px);
-            left: 0;
-            width: 240px;
-            background: #fff;
-            border: 1px solid #d0d0d0;
-            border-radius: 10px;
-            max-height: 400px;
-            overflow-y: auto;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-            z-index: 100;
-            display: none;
+            position: absolute; top: calc(100% + 4px); left: 0; width: 240px;
+            background: #fff; border: 1px solid #d0d0d0; border-radius: 10px;
+            max-height: 400px; overflow-y: auto; box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            z-index: 100; display: none;
         }
         .select-items.active { display: block; }
-        .select-group {
-            color: #1a1a1a;
-            font-size: 14px;
-            font-weight: 600;
-            padding: 10px 14px 5px;
-            cursor: default;
-            background: #fff;
-            border-bottom: 1px solid #eaeaea;
-        }
-        .select-item {
-            padding: 10px 30px 10px 14px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            position: relative;
-        }
+        .select-group { color: #1a1a1a; font-size: 14px; font-weight: 600; padding: 10px 14px 5px; cursor: default; background: #fff; border-bottom: 1px solid #eaeaea; }
+        .select-item { padding: 10px 30px 10px 14px; cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; position: relative; }
         .select-item:hover { background: #f5f5f5; }
         .select-item.selected { background: #f0f0f0; }
         .select-item.selected::after {
-            content: "";
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 16px;
-            height: 16px;
+            content: ""; position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+            width: 16px; height: 16px;
             background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2.5"><path d="M4 12l5 5 11-11"/></svg>') no-repeat center/contain;
         }
         .item-title { font-weight: 600; font-size: 14px; }
         .item-desc { font-size: 11px; color: #666; margin-top: 2px; }
         .chat-container {
-            height: calc(100vh - 210px);
+            flex: 1;
             overflow-y: auto;
             padding: 15px;
             display: flex;
             flex-direction: column;
+            -webkit-overflow-scrolling: touch;
         }
-        .msg-row {
-            width: 100%;
-            margin-bottom: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-        }
+        .msg-row { width: 100%; margin-bottom: 16px; display: flex; flex-direction: column; align-items: flex-start; }
         .msg-row.user { align-items: flex-end; }
-        .msg-bubble {
-            max-width: 85%;
-            background: #f5f5f5;
-            border-radius: 10px;
-            padding: 16px;
-            word-wrap: break-word;
-            width: fit-content;
-        }
+        .msg-bubble { max-width: 85%; background: #f5f5f5; border-radius: 10px; padding: 16px; word-wrap: break-word; width: fit-content; }
         .msg-bubble.user { background: #e0e0e0; }
-        .model-tag {
-            background: transparent;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            padding: 6px 12px;
-            font-size: 16px;
-            width: 80%;
-            margin-bottom: 4px;
-        }
+        .model-tag { background: transparent; border: 1px solid #ccc; border-radius: 8px; padding: 6px 12px; font-size: 16px; width: 80%; margin-bottom: 4px; }
         .model-tag div:first-child { font-weight: bold; }
-        .msg-text {
-            font-size: 16px;
-            line-height: 1.5;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-        .thinking-dot {
-            width: 10px;
-            height: 10px;
-            background: black;
-            border-radius: 50%;
-            margin: 0 0 16px 0;
-            animation: breathe 1.2s ease-in-out infinite;
-        }
-        @keyframes breathe {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-        .welcome-message {
-            text-align: center;
-            padding: 40px 20px;
-            color: #000;
-            font-size: 28px;
-            margin: 120px auto auto auto;
-        }
-        .bottom-section {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 15px;
-            background: #fff;
-            z-index: 1000;
-        }
-        .web-search-toggle {
-            border: 1px solid #d0d0d0;
-            border-radius: 18px;
-            background: #fff;
-            padding: 8px 12px;
-            font-size: 14px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            height: 36px;
-            margin-bottom: 8px;
-        }
-        .web-search-toggle.active {
-            background: #e3f2fd;
-            color: #1565c0;
-            border-color: #1565c0;
-        }
-        .input-container {
-            display: flex;
-            align-items: flex-start;
-            position: relative;
-        }
+        .msg-text { font-size: 16px; line-height: 1.5; white-space: pre-wrap; word-wrap: break-word; }
+        .thinking-dot { width: 10px; height: 10px; background: black; border-radius: 50%; margin: 0 0 16px 0; animation: breathe 1.2s ease-in-out infinite; }
+        @keyframes breathe { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .welcome-message { text-align: center; padding: 40px 20px; color: #000; font-size: 28px; margin: 120px auto auto auto; }
+        .bottom-section { flex-shrink: 0; padding: 15px; background: #fff; }
+        .web-search-toggle { border: 1px solid #d0d0d0; border-radius: 18px; background: #fff; padding: 8px 12px; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; height: 36px; margin-bottom: 8px; }
+        .web-search-toggle.active { background: #e3f2fd; color: #1565c0; border-color: #1565c0; }
+        .input-container { display: flex; align-items: flex-start; position: relative; }
         .input-box {
-            flex: 1;
-            min-height: 48px;
-            max-height: 132px;
-            padding: 10px 50px 10px 15px;
-            border: 1px solid #d0d0d0;
-            border-radius: 24px;
-            resize: none;
-            font-size: 16px;
-            font-family: inherit;
-            background: #fff;
-            color: #000;
-            line-height: 1.4;
+            flex: 1; min-height: 48px; max-height: 132px; padding: 10px 50px 10px 15px;
+            border: 1px solid #d0d0d0; border-radius: 24px; resize: none; font-size: 16px;
+            font-family: inherit; background: #fff; color: #000; line-height: 1.4;
         }
         .input-box:focus { outline: none; border-color: #888; }
         .send-button {
-            position: absolute;
-            right: 10px;
-            bottom: 8px;
-            border: none;
-            border-radius: 50%;
-            background: #000;
-            width: 32px;
-            height: 32px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: absolute; right: 10px; bottom: 8px; border: none; border-radius: 50%;
+            background: #000; width: 32px; height: 32px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
         }
         .send-button:disabled { background: #ccc; cursor: not-allowed; }
         .send-button svg { fill: white; width: 18px; height: 18px; }
-        .footer {
-            text-align: center;
-            padding: 12px 15px 0;
-            font-size: 12px;
-            color: #666;
-        }
-
-        /* 复制按钮样式 —— 去掉背景加深，缩小尺寸，无圆角遮挡 */
-        .copy-btn {
-            width: 18px;                /* 缩小尺寸 */
-            height: 18px;
-            background: none;            /* 完全透明背景，无加深 */
-            border: none;
-            cursor: pointer;
-            margin-top: 4px;
-            position: relative;
-            flex-shrink: 0;
-            padding: 0;                  /* 去除内边距 */
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        /* 完全使用内联SVG，不依赖外部文件 */
-        .copy-btn svg {
-            width: 18px;
-            height: 18px;
-            display: block;
-        }
-        .copy-btn svg path {
-            fill: #777777;
-            stroke: #777777;
-            stroke-width: 0.5;
-        }
+        .footer { text-align: center; padding: 12px 15px 0; font-size: 12px; color: #666; }
+        .copy-btn { width: 18px; height: 18px; background: none; border: none; cursor: pointer; margin-top: 4px; position: relative; flex-shrink: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+        .copy-btn svg { width: 18px; height: 18px; display: block; }
+        .copy-btn svg path { fill: #777777; stroke: #777777; stroke-width: 0.5; }
         .copy-btn:hover::after {
-            content: '复制';
-            position: absolute;
-            bottom: -34px;               /* 调整位置 */
-            left: 50%;
-            transform: translateX(-50%);
-            background: #000;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: bold;
-            white-space: nowrap;
+            content: '复制'; position: absolute; bottom: -34px; left: 50%;
+            transform: translateX(-50%); background: #000; color: white;
+            padding: 4px 8px; border-radius: 6px; font-size: 12px; white-space: nowrap;
             z-index: 100;
         }
-        .msg-row.ai .copy-btn {
-            align-self: flex-start;
-        }
-        .msg-row.user .copy-btn {
-            align-self: flex-end;
-        }
-
-        html, body {
-            height: 100%;
-            overflow: hidden;
-            margin: 0;
-        }
+        .msg-row.ai .copy-btn { align-self: flex-start; }
+        .msg-row.user .copy-btn { align-self: flex-end; }
     </style>
 </head>
 <body>
     <div class="header">
-        <button class="new-chat-btn" id="newChatBtn">
-            <img src="icon.png" width="20" height="20" alt="new">
-        </button>
+        <button class="new-chat-btn" id="newChatBtn"><img src="icon.png" width="20" height="20" alt="new"></button>
         <div class="custom-select" id="customSelect">
             <div class="select-selected" id="selectSelected">ChatGPT <span class="version">5.2 Instant</span></div>
             <div class="select-items" id="selectItems"></div>
         </div>
     </div>
-    
-    <div class="chat-container" id="chatContainer">
-        <div class="welcome-message" id="welcomeMessage"></div>
-    </div>
-    
+    <div class="chat-container" id="chatContainer"><div class="welcome-message" id="welcomeMessage"></div></div>
     <div class="bottom-section">
         <button class="web-search-toggle" id="webSearchToggle">🌐 搜索</button>
         <div class="input-container">
             <textarea class="input-box" id="inputBox" placeholder="有问题，尽管问" rows="2"></textarea>
-            <button class="send-button" id="sendButton">
-                <svg viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.58L20 12l-8-8-8 8z"></path></svg>
-            </button>
+            <button class="send-button" id="sendButton"><svg viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.58L20 12l-8-8-8 8z"></path></svg></button>
         </div>
-        <div class="footer">ChatGPT 也可能会犯错。请核查重要信息。查看 Cookie 首选项。</div>
+        <div class="footer">ChatGPT 也可能会犯错。请核查重要信息。</div>
     </div>
-
     <script>
-        (function() {
-            marked.setOptions({ breaks: true, gfm: true });
-
-            function renderMarkdownWithMath(text) {
-                if (!window.katex) return marked.parse(text);
+        (function(){
+            const markedOpt = { breaks: true, gfm: true };
+            marked.setOptions(markedOpt);
+            const renderMath = (text) => {
+                if (!katex) return marked.parse(text);
                 let formulas = {}, idx = 0;
-                text = text.replace(/\$\$([\s\S]*?)\$\$/g, (m, p) => {
-                    try { let h = katex.renderToString(p, { displayMode: true, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
-                }).replace(/\\\[([\s\S]*?)\\\]/g, (m, p) => {
-                    try { let h = katex.renderToString(p, { displayMode: true, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
-                }).replace(/\\\(([\s\S]*?)\\\)/g, (m, p) => {
-                    try { let h = katex.renderToString(p, { displayMode: false, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
-                }).replace(/\$([^\$]+?)\$/g, (m, p) => {
-                    try { let h = katex.renderToString(p, { displayMode: false, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
-                });
-                let html = marked.parse(text);
-                return html.replace(/@@KATEX_(\d+)@@/g, (match) => formulas[match] || match);
-            }
-
-            const MODEL_NAMES = {
-                'gpt-5.2-chat': 'GPT-5.2 Instant',
-                'gpt-5.2': 'GPT-5.2 Thinking',
-                'gpt-5.2-pro': 'GPT-5.2 Pro',
-                'gpt-5.1-chat-latest': 'GPT-5.1 Instant',
-                'gpt-5.1': 'GPT-5.1 Thinking',
-                'gpt-4o': 'GPT-4o'
+                const replacer = (m, p, display) => {
+                    try { let h = katex.renderToString(p, { displayMode: display, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
+                };
+                text = text.replace(/\$\$([\s\S]*?)\$\$/g, (m,p)=>replacer(m,p,true))
+                           .replace(/\\\[([\s\S]*?)\\\]/g, (m,p)=>replacer(m,p,true))
+                           .replace(/\\\(([\s\S]*?)\\\)/g, (m,p)=>replacer(m,p,false))
+                           .replace(/\$([^\$]+?)\$/g, (m,p)=>replacer(m,p,false));
+                return marked.parse(text).replace(/@@KATEX_(\d+)@@/g, (_,n)=>formulas[`@@KATEX_${n}@@`]||_);
             };
+
+            const MODEL_NAMES = { 'gpt-5.2-chat':'GPT-5.2 Instant','gpt-5.2':'GPT-5.2 Thinking','gpt-5.2-pro':'GPT-5.2 Pro','gpt-5.1-chat-latest':'GPT-5.1 Instant','gpt-5.1':'GPT-5.1 Thinking','gpt-4o':'GPT-4o' };
             const MODEL_LIST = [
-                { id: 'gpt-5.2-chat', title: 'Instant', desc: '即刻回答' },
-                { id: 'gpt-5.2', title: 'Thinking', desc: '思考更充分，回答更优质' },
-                { id: 'gpt-5.2-pro', title: 'Pro', desc: '研究级智能模型' }
+                { id:'gpt-5.2-chat', title:'Instant', desc:'即刻回答' },
+                { id:'gpt-5.2', title:'Thinking', desc:'思考更充分，回答更优质' },
+                { id:'gpt-5.2-pro', title:'Pro', desc:'研究级智能模型' }
             ];
-            
+            const legacyModels = [
+                { value:'gpt-5.1-chat-latest', title:'GPT-5.1 Instant' },
+                { value:'gpt-5.1', title:'GPT-5.1 Thinking' },
+                { value:'gpt-4o', title:'GPT-4o' }
+            ];
+
             const chatContainer = document.getElementById('chatContainer');
             const inputBox = document.getElementById('inputBox');
             const sendBtn = document.getElementById('sendButton');
@@ -391,365 +175,174 @@
             const selectItems = document.getElementById('selectItems');
             const customSelect = document.getElementById('customSelect');
 
-            // token计数规则：英文字母/符号=1，中文字/符号=2，其他=1
             const MAX_TOKENS = 32768;
+            const countTokens = (t)=> [...t].reduce((a,c)=>a+(c.charCodeAt(0)>=0x4E00?2:1),0);
+            
+            let messages = [], isThinking = false, webEnabled = false, hasSent = false;
+            welcome.innerText = ['有什么可以帮忙的？','我们先从哪里开始呢？','准备好了','今天有什么计划？','您今天在想什么？'][Math.floor(Math.random()*5)];
 
-            function countTokens(text) {
-                if (!text) return 0;
-                let tokens = 0;
-                for (let i = 0; i < text.length; i++) {
-                    const code = text.charCodeAt(i);
-                    if ((code >= 0x4E00 && code <= 0x9FFF) ||  
-                        (code >= 0x3400 && code <= 0x4DBF) ||  
-                        (code >= 0x20000 && code <= 0x2A6DF) || 
-                        (code >= 0x3000 && code <= 0x303F) ||  
-                        (code >= 0xFF00 && code <= 0xFFEF)) {  
-                        tokens += 2;
-                    } else {
-                        tokens += 1; 
-                    }
-                }
-                return tokens;
-            }
+            const updateSendBtn = ()=> sendBtn.disabled = isThinking || !inputBox.value.trim();
+            const getSelectedModel = ()=> document.querySelector('.select-item.selected')?.dataset.value || 'gpt-5.2-chat';
 
-            let messages = [];
-
-            function messagesToText() {
-                return messages.map(msg => {
-                    return (msg.role === 'user' ? '用户: ' : 'AI: ') + msg.content;
-                }).join('\n');
-            }
-
-            function trimMessagesIfNeeded(limit = MAX_TOKENS) {
-                let total = messages.reduce((sum, msg) => sum + msg.tokens, 0);
-                while (total > limit && messages.length >= 2) {
-                    const removed1 = messages.shift();
-                    const removed2 = messages.shift();
-                    total -= (removed1.tokens + removed2.tokens);
-                }
-                while (total > limit && messages.length > 0) {
-                    const removed = messages.shift();
-                    total -= removed.tokens;
-                }
-            }
-
-            let isThinking = false, webEnabled = false, hasSent = false;
-            welcome.textContent = ['有什么可以帮忙的？','我们先从哪里开始呢？','准备好了','今天有什么计划？','您今天在想什么？'][Math.floor(Math.random()*5)];
-
-            function updateSendButtonState() {
-                sendBtn.disabled = isThinking || !inputBox.value.trim();
-            }
-
-            function createModelTag(modelId, elapsedSeconds = null) {
+            const createModelTag = (modelId, elapsed) => {
                 let div = document.createElement('div');
                 div.className = 'model-tag';
-                let line1 = document.createElement('div');
-                line1.style.fontWeight = 'bold';
-                line1.textContent = `Request for ${MODEL_NAMES[modelId] || modelId}`;
-                div.appendChild(line1);
-                if (modelId === 'gpt-5.2-pro' && elapsedSeconds !== null) {
-                    let line2 = document.createElement('div');
-                    let minutes = Math.floor(elapsedSeconds / 60), seconds = elapsedSeconds % 60;
-                    line2.textContent = `Reasoned for ${minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`}`;
-                    div.appendChild(line2);
-                }
+                div.innerHTML = `<div style="font-weight:bold;">Request for ${MODEL_NAMES[modelId]||modelId}</div>` + 
+                    (modelId==='gpt-5.2-pro'&&elapsed!==null? `<div>Reasoned for ${Math.floor(elapsed/60)}m ${elapsed%60}s</div>`:'');
                 return div;
-            }
+            };
 
-            function updateSelectedDisplay(modelId) {
-                let full = MODEL_NAMES[modelId] || modelId;
-                let version = full.startsWith('GPT-') ? full.substring(4) : full;
-                selectSelected.innerHTML = `ChatGPT&nbsp;<span class="version">${version}</span>`;
-            }
-
-            function buildSelect() {
-                selectItems.innerHTML = '';
-                let group = document.createElement('div');
-                group.className = 'select-group';
-                group.textContent = 'GPT-5.2';
-                selectItems.appendChild(group);
-
-                MODEL_LIST.forEach(item => {
-                    let opt = document.createElement('div');
-                    opt.className = 'select-item';
-                    opt.dataset.value = item.id;
-                    opt.dataset.title = item.title;
-                    opt.innerHTML = `<span class="item-title">${item.title}</span><span class="item-desc">${item.desc}</span>`;
-                    selectItems.appendChild(opt);
-                });
-
-                let collapsible = document.createElement('div');
-                collapsible.style.borderTop = '1px solid #eaeaea';
-
-                let legacyHeader = document.createElement('div');
-                legacyHeader.className = 'select-group';
-                legacyHeader.style.cssText = 'display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:8px 14px';
-                legacyHeader.innerHTML = 'Legacy Models';
-                let arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                arrow.setAttribute('width', '20'); arrow.setAttribute('height', '20'); arrow.setAttribute('viewBox', '0 0 24 24');
-                arrow.setAttribute('fill', 'none'); arrow.setAttribute('stroke', 'black'); arrow.setAttribute('stroke-width', '2');
-                arrow.innerHTML = '<path d="M6 9l6 6 6-6"/>';
-                legacyHeader.appendChild(arrow);
-
-                let legacyContent = document.createElement('div');
-                legacyContent.style.display = 'none';
-
-                [
-                    { value: 'gpt-5.1-chat-latest', title: 'GPT-5.1 Instant' },
-                    { value: 'gpt-5.1', title: 'GPT-5.1 Thinking' },
-                    { value: 'gpt-4o', title: 'GPT-4o' }
-                ].forEach(model => {
-                    let opt = document.createElement('div');
-                    opt.className = 'select-item';
-                    opt.dataset.value = model.value;
-                    opt.dataset.title = model.title;
-                    opt.innerHTML = `<span class="item-title">${model.title}</span>`;
-                    legacyContent.appendChild(opt);
-                });
-
-                collapsible.appendChild(legacyHeader);
-                collapsible.appendChild(legacyContent);
-                selectItems.appendChild(collapsible);
-
-                legacyHeader.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    let hidden = legacyContent.style.display === 'none';
-                    legacyContent.style.display = hidden ? 'block' : 'none';
-                    arrow.style.transform = hidden ? 'rotate(180deg)' : '';
-                });
-
-                document.querySelector('.select-item[data-value="gpt-5.2-chat"]')?.classList.add('selected');
-                updateSelectedDisplay('gpt-5.2-chat');
-            }
-
-            function getFinalModel() {
-                let sel = document.querySelector('.select-item.selected');
-                return sel ? sel.dataset.value : 'gpt-5.2-chat';
-            }
-
-            function createCopySVG() {
-                const xmlns = "http://www.w3.org/2000/svg";
-                const svg = document.createElementNS(xmlns, "svg");
-                svg.setAttribute("viewBox", "0 0 1024 1024");
-                svg.setAttribute("width", "18");
-                svg.setAttribute("height", "18");
-                const path1 = document.createElementNS(xmlns, "path");
-                path1.setAttribute("d", "M819.2 819.2v-68.266667h68.266667c40.96 0 68.266667-27.306667 68.266666-68.266666V136.533333c0-40.96-27.306667-68.266667-68.266666-68.266666H341.333333c-40.96 0-68.266667 27.306667-68.266666 68.266666v68.266667H204.8V136.533333c0-75.093333 61.44-136.533333 136.533333-136.533333h546.133334c75.093333 0 136.533333 61.44 136.533333 136.533333v546.133334c0 75.093333-61.44 136.533333-136.533333 136.533333h-68.266667z");
-                path1.setAttribute("fill", "#777777");
-                path1.setAttribute("stroke", "#777777");
-                path1.setAttribute("stroke-width", "0.5");
-                const path2 = document.createElementNS(xmlns, "path");
-                path2.setAttribute("d", "M136.533333 204.8h546.133334c75.093333 0 136.533333 61.44 136.533333 136.533333v546.133334c0 75.093333-61.44 136.533333-136.533333 136.533333H136.533333c-75.093333 0-136.533333-61.44-136.533333-136.533333V341.333333c0-75.093333 61.44-136.533333 136.533333-136.533333z m0 68.266667c-40.96 0-68.266667 27.306667-68.266666 68.266666v546.133334c0 40.96 27.306667 68.266667 68.266666 68.266666h546.133334c40.96 0 68.266667-27.306667 68.266666-68.266666V341.333333c0-40.96-27.306667-68.266667-68.266666-68.266666H136.533333z");
-                path2.setAttribute("fill", "#777777");
-                path2.setAttribute("stroke", "#777777");
-                path2.setAttribute("stroke-width", "0.5");
-                svg.appendChild(path1);
-                svg.appendChild(path2);
+            const makeCopySvg = ()=> {
+                let svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+                svg.setAttribute('viewBox','0 0 1024 1024');
+                svg.setAttribute('width','18'); svg.setAttribute('height','18');
+                svg.innerHTML = '<path d="M819.2 819.2v-68.266667h68.266667c40.96 0 68.266667-27.306667 68.266666-68.266666V136.533333c0-40.96-27.306667-68.266667-68.266666-68.266666H341.333333c-40.96 0-68.266667 27.306667-68.266666 68.266666v68.266667H204.8V136.533333c0-75.093333 61.44-136.533333 136.533333-136.533333h546.133334c75.093333 0 136.533333 61.44 136.533333 136.533333v546.133334c0 75.093333-61.44 136.533333-136.533333 136.533333h-68.266667z" fill="#777777" stroke="#777777" stroke-width="0.5"/><path d="M136.533333 204.8h546.133334c75.093333 0 136.533333 61.44 136.533333 136.533333v546.133334c0 75.093333-61.44 136.533333-136.533333 136.533333H136.533333c-75.093333 0-136.533333-61.44-136.533333-136.533333V341.333333c0-75.093333 61.44-136.533333 136.533333-136.533333z m0 68.266667c-40.96 0-68.266667 27.306667-68.266666 68.266666v546.133334c0 40.96 27.306667 68.266667 68.266666 68.266666h546.133334c40.96 0 68.266667-27.306667 68.266666-68.266666V341.333333c0-40.96-27.306667-68.266667-68.266666-68.266666H136.533333z" fill="#777777" stroke="#777777" stroke-width="0.5"/>';
                 return svg;
-            }
+            };
 
-            // 添加消息（用户/助手），带复制按钮（使用内联SVG）
-            function addMessage(text, isUser = false) {
-                if (isUser && !hasSent) {
-                    welcome.style.display = 'none';
-                    hasSent = true;
-                }
+            const addMessage = (text, isUser, asMarkdown=false) => {
+                if (isUser && !hasSent) { welcome.style.display = 'none'; hasSent = true; }
                 let row = document.createElement('div');
-                row.className = `msg-row ${isUser ? 'user' : 'ai'}`;
+                row.className = `msg-row ${isUser?'user':'ai'}`;
                 let bubble = document.createElement('div');
-                bubble.className = `msg-bubble${isUser ? ' user' : ''}`;
+                bubble.className = `msg-bubble${isUser?' user':''}`;
                 let msgText = document.createElement('div');
                 msgText.className = 'msg-text';
-                
-                if (isUser) {
-                    msgText.innerHTML = text.replace(/\n/g, '<br>');
-                } else {
-                    msgText.innerText = text; // 错误消息等不渲染markdown
-                }
-                
+                if (asMarkdown) msgText.innerHTML = renderMath(text);
+                else msgText.innerText = text;
                 bubble.appendChild(msgText);
                 row.appendChild(bubble);
-                
-                // 创建复制按钮（内联SVG）
                 let copyBtn = document.createElement('button');
                 copyBtn.className = 'copy-btn';
-                copyBtn.appendChild(createCopySVG());
+                copyBtn.appendChild(makeCopySvg());
                 copyBtn.dataset.original = text;
-                copyBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const txt = e.currentTarget.dataset.original;
-                    if (txt && navigator.clipboard) {
-                        navigator.clipboard.writeText(txt).catch(() => {});
-                    }
-                });
+                copyBtn.onclick = (e)=> e.currentTarget.dataset.original && navigator.clipboard?.writeText(e.currentTarget.dataset.original);
                 row.appendChild(copyBtn);
-                
                 chatContainer.appendChild(row);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
-                return msgText; 
-            }
+                return msgText;
+            };
 
-            async function send() {
+            const send = async ()=>{
                 if (isThinking) return;
                 let text = inputBox.value.trim();
                 if (!text) return;
-
-                inputBox.value = '';
-                inputBox.style.height = '';
-                addMessage(text, true); // 用户消息带复制按钮
-                let finalModel = getFinalModel();
-
-                trimMessagesIfNeeded(MAX_TOKENS);
-
-                isThinking = true;
-                updateSendButtonState();
-
-                // 黑色呼吸圆点
+                inputBox.value = ''; inputBox.style.height = '';
+                addMessage(text, true);
+                const finalModel = getSelectedModel();
+                messages = messages.slice(-MAX_TOKENS*2); // 简单截断，保留最近消息
+                isThinking = true; updateSendBtn();
                 let thinkingRow = document.createElement('div');
                 thinkingRow.className = 'msg-row ai';
                 thinkingRow.innerHTML = '<div class="thinking-dot"></div>';
                 chatContainer.appendChild(thinkingRow);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
-
                 let opts = { stream: true, model: finalModel };
                 if (finalModel.includes('gpt-5.')) opts.driver = 'openrouter';
                 if (webEnabled) opts.tools = [{ type: 'web_search' }];
-
-                const startTime = Date.now();
-                let firstChunkReceived = false;
-                let bubbleRow = null;
-                let msgText = null;
-                let full = '';
-
+                const start = Date.now();
+                let full = '', first = false, bubbleRow, msgText;
                 try {
-                    let history = messagesToText();
-                    let prompt = history ? history + '\n' : '';
-                    prompt += '用户: ' + text + '\nAI: ';
-
+                    let history = messages.map(m=>(m.role==='user'?'用户: ':'AI: ')+m.content).join('\n');
+                    let prompt = (history?history+'\n':'') + '用户: ' + text + '\nAI: ';
                     let res = await puter.ai.chat(prompt, opts);
-                    
                     for await (let part of res) {
-                        if (!firstChunkReceived) {
-                            thinkingRow.remove();
-                            thinkingRow = null;
-
-                            let row = document.createElement('div');
-                            row.className = 'msg-row ai';
-                            let bubble = document.createElement('div');
-                            bubble.className = 'msg-bubble';
-                            msgText = document.createElement('div');
-                            msgText.className = 'msg-text';
-                            bubble.appendChild(msgText);
-                            row.appendChild(bubble);
-                            chatContainer.appendChild(row);
-                            bubbleRow = row;
-                            firstChunkReceived = true;
+                        if (!first) {
+                            thinkingRow.remove(); thinkingRow = null;
+                            bubbleRow = document.createElement('div'); bubbleRow.className = 'msg-row ai';
+                            let bubble = document.createElement('div'); bubble.className = 'msg-bubble';
+                            msgText = document.createElement('div'); msgText.className = 'msg-text';
+                            bubble.appendChild(msgText); bubbleRow.appendChild(bubble);
+                            chatContainer.appendChild(bubbleRow);
+                            first = true;
                         }
-
                         if (part?.text) {
                             full += part.text;
-                            msgText.innerHTML = renderMarkdownWithMath(full);
+                            msgText.innerHTML = renderMath(full);
                             chatContainer.scrollTop = chatContainer.scrollHeight;
                         }
                     }
-
-                    if (!firstChunkReceived) {
-                        if (thinkingRow) thinkingRow.remove();
+                    if (!first) {
+                        thinkingRow?.remove();
                         addMessage('模型返回了空响应', false);
                     } else {
-                        // 记录token并修剪
-                        const userTokens = countTokens(text);
-                        const assistantTokens = countTokens(full);
-                        messages.push({ role: 'user', content: text, tokens: userTokens });
-                        messages.push({ role: 'assistant', content: full, tokens: assistantTokens });
-                        trimMessagesIfNeeded(MAX_TOKENS);
-
-                        let elapsed = Math.floor((Date.now() - startTime) / 1000);
-                        let tag = createModelTag(finalModel, finalModel === 'gpt-5.2-pro' ? elapsed : null);
+                        messages.push({ role:'user', content:text, tokens:countTokens(text) });
+                        messages.push({ role:'assistant', content:full, tokens:countTokens(full) });
+                        let elapsed = Math.floor((Date.now()-start)/1000);
+                        let tag = createModelTag(finalModel, finalModel==='gpt-5.2-pro'?elapsed:null);
                         bubbleRow.insertBefore(tag, bubbleRow.firstChild);
-
-                        // 助手消息添加复制按钮（内联SVG）
                         let copyBtn = document.createElement('button');
                         copyBtn.className = 'copy-btn';
-                        copyBtn.appendChild(createCopySVG());
+                        copyBtn.appendChild(makeCopySvg());
                         copyBtn.dataset.original = full;
-                        copyBtn.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            const txt = e.currentTarget.dataset.original;
-                            if (txt && navigator.clipboard) {
-                                navigator.clipboard.writeText(txt).catch(() => {});
-                            }
-                        });
+                        copyBtn.onclick = (e)=> navigator.clipboard?.writeText(e.currentTarget.dataset.original);
                         bubbleRow.appendChild(copyBtn);
                     }
-
                 } catch (err) {
-                    if (thinkingRow) thinkingRow.remove();
+                    thinkingRow?.remove();
                     addMessage('错误: ' + err.message, false);
                 } finally {
-                    isThinking = false;
-                    updateSendButtonState();
-                    inputBox.focus();
+                    isThinking = false; updateSendBtn(); inputBox.focus();
                 }
-            }
+            };
 
-            inputBox.addEventListener('input', () => {
+            // 事件绑定
+            inputBox.addEventListener('input', ()=>{
                 inputBox.style.height = 'auto';
-                inputBox.style.height = Math.min(inputBox.scrollHeight, 132) + 'px';
-                updateSendButtonState();
+                inputBox.style.height = Math.min(inputBox.scrollHeight,132)+'px';
+                updateSendBtn();
             });
-            inputBox.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && !e.shiftKey && !isThinking && !/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                    e.preventDefault();
-                    send();
+            inputBox.addEventListener('keydown', (e)=>{
+                if (e.key==='Enter' && !e.shiftKey && !isThinking && !/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                    e.preventDefault(); send();
                 }
             });
             sendBtn.addEventListener('click', send);
-            webToggle.addEventListener('click', () => {
+            webToggle.addEventListener('click', ()=> {
                 webEnabled = !webEnabled;
                 webToggle.classList.toggle('active', webEnabled);
             });
-            newChat.addEventListener('click', () => {
-                location.reload();
-            });
+            newChat.addEventListener('click', ()=> location.reload());
 
-            selectSelected.addEventListener('click', (e) => {
-                e.stopPropagation();
-                selectItems.classList.toggle('active');
-            });
-            document.addEventListener('click', (e) => {
-                if (!customSelect.contains(e.target)) selectItems.classList.remove('active');
-            });
-            selectItems.addEventListener('click', (e) => {
+            // 下拉菜单构建
+            const buildSelect = ()=>{
+                selectItems.innerHTML = `
+                    <div class="select-group">GPT-5.2</div>
+                    ${MODEL_LIST.map(m=>`<div class="select-item" data-value="${m.id}"><span class="item-title">${m.title}</span><span class="item-desc">${m.desc}</span></div>`).join('')}
+                    <div style="border-top:1px solid #eaeaea">
+                        <div class="select-group" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:8px 14px" id="legacyHeader">Legacy Models <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg></div>
+                        <div id="legacyContent" style="display:none">${legacyModels.map(m=>`<div class="select-item" data-value="${m.value}"><span class="item-title">${m.title}</span></div>`).join('')}</div>
+                    </div>
+                `;
+                document.getElementById('legacyHeader').addEventListener('click', (e)=>{
+                    e.stopPropagation();
+                    let c = document.getElementById('legacyContent');
+                    c.style.display = c.style.display==='none'?'block':'none';
+                    e.currentTarget.querySelector('svg').style.transform = c.style.display==='block'?'rotate(180deg)':'';
+                });
+                document.querySelector('.select-item[data-value="gpt-5.2-chat"]')?.classList.add('selected');
+            };
+            buildSelect();
+
+            selectSelected.addEventListener('click', (e)=> { e.stopPropagation(); selectItems.classList.toggle('active'); });
+            document.addEventListener('click', (e)=> { if (!customSelect.contains(e.target)) selectItems.classList.remove('active'); });
+            selectItems.addEventListener('click', (e)=> {
                 let target = e.target.closest('.select-item');
                 if (!target) return;
-                document.querySelectorAll('.select-item').forEach(el => el.classList.remove('selected'));
+                document.querySelectorAll('.select-item').forEach(el=>el.classList.remove('selected'));
                 target.classList.add('selected');
-                updateSelectedDisplay(target.dataset.value);
+                let full = MODEL_NAMES[target.dataset.value] || target.dataset.value;
+                let version = full.startsWith('GPT-')? full.substring(4) : full;
+                selectSelected.innerHTML = `ChatGPT&nbsp;<span class="version">${version}</span>`;
             });
 
-            buildSelect();
-            updateSendButtonState();
+            updateSendBtn();
             inputBox.focus();
-        })();
 
-        document.addEventListener('gesturestart', function(e) {
-            e.preventDefault();
-        });
-        
-        document.addEventListener('touchmove', function(e) {
-            if (e.touches.length > 1) {
-                e.preventDefault();
-            }
-        }, { passive: false });
-        
-        document.addEventListener('gesturechange', function(e) {
-            e.preventDefault();
-        });
-        
-        document.addEventListener('gestureend', function(e) {
-            e.preventDefault();
-        });
+            // 禁止双指缩放
+            ['gesturestart','gesturechange','gestureend'].forEach(ev=>document.addEventListener(ev, e=>e.preventDefault()));
+            document.addEventListener('touchmove', e=> e.touches.length>1 && e.preventDefault(), { passive: false });
+        })();
     </script>
 </body>
 </html>
