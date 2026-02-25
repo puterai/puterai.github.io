@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Marked 换行测试</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 { font-size: 24px; margin-bottom: 20px; }
+        h2 { font-size: 18px; margin: 20px 0 10px; }
+        
+        .input-area {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: monospace;
+            margin-bottom: 15px;
+        }
+        .options {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+        button {
+            background: #000;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover { background: #333; }
+        
+        .chat-style {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .msg-row {
+            width: 100%;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .msg-row.user { align-items: flex-end; }
+        
+        .msg-bubble {
+            max-width: 85%;
+            background: #f0f0f0;
+            border-radius: 18px;
+            padding: 12px 16px;
+            word-wrap: break-word;
+            width: fit-content;
+        }
+        .msg-bubble.user {
+            background: #007AFF;
+            color: white;
+        }
+        .msg-bubble pre {
+            background: rgba(0,0,0,0.05);
+            padding: 8px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+        .msg-bubble.user pre {
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .debug-info {
+            font-family: monospace;
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+            padding-left: 16px;
+        }
+        
+        .original-text {
+            background: #f8f8f8;
+            border-left: 4px solid #999;
+            padding: 10px;
+            margin: 10px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Marked 换行测试</h1>
+        
+        <div class="input-area">
+            <textarea id="inputText" placeholder="输入测试文本...">第一行
+第二行
+
+第三行（前面空一行）
+
+最后一行</textarea>
+            
+            <div class="options">
+                <label>
+                    <input type="checkbox" id="breaksOption" checked> breaks: true
+                </label>
+                <label>
+                    <input type="checkbox" id="gfmOption" checked> gfm: true
+                </label>
+            </div>
+            
+            <button id="renderBtn">渲染测试</button>
+        </div>
+        
+        <div class="chat-style">
+            <h2>📨 用户消息（直接替换换行）</h2>
+            <div class="msg-row user" id="userMessageContainer">
+                <div class="msg-bubble user" id="userMessageBubble"></div>
+                <div class="debug-info" id="userDebug"></div>
+            </div>
+            
+            <h2 style="margin-top: 40px;">🤖 助手消息（marked渲染）</h2>
+            <div class="msg-row" id="assistantMessageContainer">
+                <div class="msg-bubble" id="assistantMessageBubble"></div>
+                <div class="debug-info" id="assistantDebug"></div>
+            </div>
+            
+            <h2 style="margin-top: 40px;">📋 原始文本调试</h2>
+            <div class="original-text" id="originalDebug"></div>
+        </div>
+    </div>
+
+    <script>
+        const inputText = document.getElementById('inputText');
+        const breaksCheck = document.getElementById('breaksOption');
+        const gfmCheck = document.getElementById('gfmOption');
+        const renderBtn = document.getElementById('renderBtn');
+        
+        const userBubble = document.getElementById('userMessageBubble');
+        const userDebug = document.getElementById('userDebug');
+        const assistantBubble = document.getElementById('assistantMessageBubble');
+        const assistantDebug = document.getElementById('assistantDebug');
+        const originalDebug = document.getElementById('originalDebug');
+        
+        function render() {
+            const text = inputText.value;
+            
+            // 显示原始文本（带转义符号）
+            originalDebug.innerHTML = `
+                <div>原始字符串长度: ${text.length}</div>
+                <div>包含换行符: ${text.includes('\n') ? '✅' : '❌'}</div>
+                <div>末尾是换行符: ${text.endsWith('\n') ? '✅' : '❌'}</div>
+                <div>JSON字符串: ${JSON.stringify(text)}</div>
+                <div>转义显示: ${text.replace(/\n/g, '↵\n')}</div>
+            `;
+            
+            // 用户消息风格（直接替换换行为<br>）
+            userBubble.innerHTML = text.replace(/\n/g, '<br>');
+            userDebug.innerHTML = `长度: ${text.length} | 换行数: ${(text.match(/\n/g) || []).length}`;
+            
+            // 设置 marked 选项
+            marked.setOptions({
+                breaks: breaksCheck.checked,
+                gfm: gfmCheck.checked
+            });
+            
+            // 助手消息风格（marked渲染）
+            const renderedHtml = marked.parse(text);
+            assistantBubble.innerHTML = renderedHtml;
+            
+            // 调试信息
+            const endsWithBr = renderedHtml.trim().endsWith('<br>') || renderedHtml.trim().endsWith('<br/>') || renderedHtml.trim().endsWith('<br />');
+            assistantDebug.innerHTML = `
+                长度: ${renderedHtml.length}<br>
+                末尾是&lt;br&gt;: ${endsWithBr ? '✅' : '❌'}<br>
+                HTML: ${renderedHtml.replace(/</g, '&lt;')}
+            `;
+            
+            // 额外检查最后一个子节点
+            const lastChild = assistantBubble.lastChild;
+            let lastNodeInfo = '';
+            if (lastChild) {
+                if (lastChild.tagName === 'BR') {
+                    lastNodeInfo = '最后一个子节点是 <br>';
+                } else if (lastChild.nodeType === 3) { // 文本节点
+                    lastNodeInfo = `最后一个子节点是文本节点: "${lastChild.textContent.replace(/\n/g, '↵')}"`;
+                } else {
+                    lastNodeInfo = `最后一个子节点是: ${lastChild.tagName}`;
+                }
+            }
+            assistantDebug.innerHTML += `<br>${lastNodeInfo}`;
+        }
+        
+        renderBtn.addEventListener('click', render);
+        
+        // 初始渲染
+        render();
+        
+        // 实时更新选项
+        breaksCheck.addEventListener('change', render);
+        gfmCheck.addEventListener('change', render);
+    </script>
+</body>
+</html>
