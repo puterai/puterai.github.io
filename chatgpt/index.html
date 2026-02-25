@@ -15,22 +15,19 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #fff;
             color: #000;
-            height: 100%;
-            overflow: hidden;
-            margin: 0;
+            /* 关键修复：body占满视口，使用flex列布局保证底部固定，中间滚动区自动伸缩 */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;  /* 防止body滚动 */
         }
         .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
+            flex-shrink: 0;
             padding: 12px 15px;
             background: #fff;
             display: flex;
             align-items: center;
             z-index: 1000;
-            height: 70px;
-            border-bottom: 1px solid #f0f0f0;
         }
         .new-chat-btn {
             width: 40px;
@@ -139,30 +136,24 @@
         }
         .item-title { font-weight: 600; font-size: 14px; }
         .item-desc { font-size: 11px; color: #666; margin-top: 2px; }
-        
-        /* 对话区 - 使用绝对定位 + top/bottom 确保完美贴合 */
+        /* 修复点：聊天容器采用 flex:1 自动撑满剩余高度，配合 min-height:0 允许内部滚动 */
         .chat-container {
-            position: fixed;
-            top: 70px;  /* 等于 header 高度 */
-            bottom: 0;   /* 默认值，后面用JS精确覆盖 */
-            left: 0;
-            right: 0;
+            flex: 1;
+            min-height: 0;      /* 强制flex子项可收缩，否则滚动失效 */
             overflow-y: auto;
             padding: 15px;
             display: flex;
             flex-direction: column;
-            /* 底部留一点内边距让最后一条消息不贴边 */
-            padding-bottom: 30px;
-            /* 初始底部值会被JS覆盖 */
-            bottom: 140px;
+            width: 100%;
+            -webkit-overflow-scrolling: touch; /* 提升移动端滚动流畅度 */
         }
-        
         .msg-row {
             width: 100%;
             margin-bottom: 16px;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            position: relative; /* 为复制按钮定位参考? 实际不用，但保留无妨 */
         }
         .msg-row.user { align-items: flex-end; }
         .msg-bubble {
@@ -210,17 +201,13 @@
             font-size: 28px;
             margin: 120px auto auto auto;
         }
-        
-        /* 底部固定区域 */
+        /* 底部区域：固定在最下面，不随滚动移动 */
         .bottom-section {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            flex-shrink: 0;
             padding: 15px;
             background: #fff;
-            z-index: 1000;
-            border-top: 1px solid #f0f0f0;
+            width: 100%;
+            border-top: 1px solid #f0f0f0; /* 轻微分割，美观 */
         }
         .web-search-toggle {
             border: 1px solid #d0d0d0;
@@ -283,7 +270,7 @@
             color: #666;
         }
 
-        /* 复制按钮样式 */
+        /* 复制按钮样式不变，完全透明 */
         .copy-btn {
             width: 18px;
             height: 18px;
@@ -329,18 +316,14 @@
         .msg-row.user .copy-btn {
             align-self: flex-end;
         }
-
-        html, body {
-            height: 100%;
-            overflow: hidden;
-            margin: 0;
-        }
+        /* 移除旧的html/body overflow设置，已经用flex代替 */
     </style>
 </head>
 <body>
     <div class="header">
         <button class="new-chat-btn" id="newChatBtn">
-            <img src="icon.png" width="20" height="20" alt="new">
+            <!-- 保留原有img，由于icon.png可能不存在，但用纯文本模拟 -->
+            <img src="icon.png" width="20" height="20" alt="new" onerror="this.style.display='none';this.parentNode.innerHTML='+';">
         </button>
         <div class="custom-select" id="customSelect">
             <div class="select-selected" id="selectSelected">ChatGPT <span class="version">5.2 Instant</span></div>
@@ -348,12 +331,12 @@
         </div>
     </div>
     
-    <!-- 聊天容器 - 位置由JS精确控制 -->
+    <!-- chat-container 现在由flex控制高度，不再用vh计算 -->
     <div class="chat-container" id="chatContainer">
         <div class="welcome-message" id="welcomeMessage"></div>
     </div>
     
-    <div class="bottom-section" id="bottomSection">
+    <div class="bottom-section">
         <button class="web-search-toggle" id="webSearchToggle">🌐 搜索</button>
         <div class="input-container">
             <textarea class="input-box" id="inputBox" placeholder="有问题，尽管问" rows="2"></textarea>
@@ -407,9 +390,7 @@
             const selectSelected = document.getElementById('selectSelected');
             const selectItems = document.getElementById('selectItems');
             const customSelect = document.getElementById('customSelect');
-            const bottomSection = document.getElementById('bottomSection');
 
-            // token计数规则：英文字母/符号=1，中文字/符号=2，其他=1
             const MAX_TOKENS = 32768;
 
             function countTokens(text) {
@@ -566,7 +547,6 @@
                 return svg;
             }
 
-            // 添加消息（用户/助手），带复制按钮
             function addMessage(text, isUser = false) {
                 if (isUser && !hasSent) {
                     welcome.style.display = 'none';
@@ -582,7 +562,7 @@
                 if (isUser) {
                     msgText.innerHTML = text.replace(/\n/g, '<br>');
                 } else {
-                    msgText.innerText = text;
+                    msgText.innerText = text; 
                 }
                 
                 bubble.appendChild(msgText);
@@ -602,53 +582,10 @@
                 row.appendChild(copyBtn);
                 
                 chatContainer.appendChild(row);
+                // 滚动到底部
                 chatContainer.scrollTop = chatContainer.scrollHeight;
                 return msgText; 
             }
-
-            // ========== 核心修复：精确计算聊天区域高度 ==========
-            function updateChatContainerHeight() {
-                // 获取头部实际高度 (可能因内容变化，但header固定70px，用offsetHeight更稳妥)
-                const headerHeight = document.querySelector('.header').offsetHeight;
-                // 获取底部区域实际高度 (包括内边距)
-                const bottomHeight = bottomSection.offsetHeight;
-                
-                // 设置聊天容器的位置：top = 头部高度，bottom = 底部高度
-                chatContainer.style.top = headerHeight + 'px';
-                chatContainer.style.bottom = bottomHeight + 'px';
-                
-                // 确保滚动位置正确（如果之前已经滚到底部，重新计算后可能会偏移，稍后恢复）
-                // 记录滚动比例或者直接尝试保持底部可见，但不做复杂处理
-            }
-
-            // 监听 resize 和键盘弹出事件
-            window.addEventListener('resize', function() {
-                updateChatContainerHeight();
-                // 如果当前接近底部，保持底部可见
-                if (chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight < 50) {
-                    setTimeout(() => {
-                        chatContainer.scrollTop = chatContainer.scrollHeight;
-                    }, 50);
-                }
-            });
-
-            // 输入框获得焦点（移动端键盘弹出）时重新计算
-            inputBox.addEventListener('focus', function() {
-                // 延迟执行以等待键盘动画完成
-                setTimeout(updateChatContainerHeight, 100);
-                setTimeout(() => {
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                }, 150);
-            });
-
-            inputBox.addEventListener('blur', function() {
-                // 键盘收回后重新计算
-                setTimeout(updateChatContainerHeight, 50);
-            });
-
-            // 初始调用
-            updateChatContainerHeight();
-            // ==================================================
 
             async function send() {
                 if (isThinking) return;
@@ -657,7 +594,7 @@
 
                 inputBox.value = '';
                 inputBox.style.height = '';
-                addMessage(text, true);
+                addMessage(text, true); 
                 let finalModel = getFinalModel();
 
                 trimMessagesIfNeeded(MAX_TOKENS);
@@ -739,6 +676,9 @@
                             }
                         });
                         bubbleRow.appendChild(copyBtn);
+                        
+                        // 再次确保滚动到底
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
                     }
 
                 } catch (err) {
@@ -791,21 +731,17 @@
             inputBox.focus();
         })();
 
-        // 防缩放
         document.addEventListener('gesturestart', function(e) {
             e.preventDefault();
         });
-        
         document.addEventListener('touchmove', function(e) {
             if (e.touches.length > 1) {
                 e.preventDefault();
             }
         }, { passive: false });
-        
         document.addEventListener('gesturechange', function(e) {
             e.preventDefault();
         });
-        
         document.addEventListener('gestureend', function(e) {
             e.preventDefault();
         });
