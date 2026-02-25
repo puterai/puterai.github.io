@@ -35,9 +35,18 @@
         }
         .new-chat-btn:hover { background: #e5e5e5; }
         .new-chat-btn:hover::after {
-            content: '新聊天'; position: absolute; bottom: -38px; left: 50%;
-            transform: translateX(-50%); background: #000; color: white;
-            padding: 6px 10px; border-radius: 6px; font-size: 12px; white-space: nowrap;
+            content: '新聊天';
+            position: absolute;
+            bottom: -34px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
         }
         .custom-select { position: relative; width: fit-content; }
         .select-selected {
@@ -110,9 +119,18 @@
         .copy-btn svg { width: 18px; height: 18px; display: block; }
         .copy-btn svg path { fill: #777777; stroke: #777777; stroke-width: 0.5; }
         .copy-btn:hover::after {
-            content: '复制'; position: absolute; bottom: -34px; left: 50%;
-            transform: translateX(-50%); background: #000; color: white;
-            padding: 4px 8px; border-radius: 6px; font-size: 12px; white-space: nowrap;
+            content: '复制';
+            position: absolute;
+            bottom: -34px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
             z-index: 100;
         }
         .msg-row.ai .copy-btn { align-self: flex-start; }
@@ -123,7 +141,7 @@
     <div class="header">
         <button class="new-chat-btn" id="newChatBtn"><img src="icon.png" width="20" height="20" alt="new"></button>
         <div class="custom-select" id="customSelect">
-            <div class="select-selected" id="selectSelected">ChatGPT <span class="version">5.2 Instant</span></div>
+            <div class="select-selected" id="selectSelected">ChatGPT&nbsp;<span class="version">5.2 Instant</span></div>
             <div class="select-items" id="selectItems"></div>
         </div>
     </div>
@@ -230,7 +248,7 @@
                 inputBox.value = ''; inputBox.style.height = '';
                 addMessage(text, true);
                 const finalModel = getSelectedModel();
-                messages = messages.slice(-MAX_TOKENS*2); // 简单截断，保留最近消息
+                messages = messages.slice(-MAX_TOKENS*2);
                 isThinking = true; updateSendBtn();
                 let thinkingRow = document.createElement('div');
                 thinkingRow.className = 'msg-row ai';
@@ -286,7 +304,6 @@
                 }
             };
 
-            // 事件绑定
             inputBox.addEventListener('input', ()=>{
                 inputBox.style.height = 'auto';
                 inputBox.style.height = Math.min(inputBox.scrollHeight,132)+'px';
@@ -304,7 +321,6 @@
             });
             newChat.addEventListener('click', ()=> location.reload());
 
-            // 下拉菜单构建
             const buildSelect = ()=>{
                 selectItems.innerHTML = `
                     <div class="select-group">GPT-5.2</div>
@@ -339,7 +355,6 @@
             updateSendBtn();
             inputBox.focus();
 
-            // 禁止双指缩放
             ['gesturestart','gesturechange','gestureend'].forEach(ev=>document.addEventListener(ev, e=>e.preventDefault()));
             document.addEventListener('touchmove', e=> e.touches.length>1 && e.preventDefault(), { passive: false });
         })();
