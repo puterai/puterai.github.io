@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -335,11 +334,15 @@
         (function() {
             marked.setOptions({ breaks: true, gfm: true });
 
+            // 修复版的 renderMarkdownWithMath - 移除末尾空白
             function renderMarkdownWithMath(text) {
-                if (!window.katex) return marked.parse(text);
-
-                let originalEndsWithNewline = text.endsWith('\n');
-    
+                if (!window.katex) {
+                    let html = marked.parse(text);
+                    // 移除末尾空白字符（包括换行和空格）
+                    html = html.replace(/\s+$/, '');
+                    return html;
+                }
+                
                 let formulas = {}, idx = 0;
                 text = text.replace(/\$\$([\s\S]*?)\$\$/g, (m, p) => {
                     try { let h = katex.renderToString(p, { displayMode: true, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
@@ -350,18 +353,13 @@
                 }).replace(/\$([^\$]+?)\$/g, (m, p) => {
                     try { let h = katex.renderToString(p, { displayMode: false, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
                 });
-    
+                
                 let html = marked.parse(text);
-
-                if (originalEndsWithNewline) {
-                    html = html.replace(/(<br\s*\/?>\s*)+$/, '');
-                    html = html.replace(/<\/p>\s*$/, '</p>');
-                }
-
                 html = html.replace(/@@KATEX_(\d+)@@/g, (match) => formulas[match] || match);
-
-                html = html.replace(/<br\s*\/?>\s*$/, '');
-    
+                
+                // 关键修复：移除末尾所有空白字符（包括换行和空格）
+                html = html.replace(/\s+$/, '');
+                
                 return html;
             }
 
@@ -673,6 +671,11 @@
                             }
                         });
                         bubbleRow.appendChild(copyBtn);
+
+                        // 额外保险：DOM层清理一次
+                        if (msgText && msgText.lastChild && msgText.lastChild.nodeType === 3 && /^\s*$/.test(msgText.lastChild.textContent)) {
+                            msgText.removeChild(msgText.lastChild);
+                        }
                     }
 
                 } catch (err) {
