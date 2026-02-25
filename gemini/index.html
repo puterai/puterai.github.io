@@ -397,8 +397,8 @@
             }
 
             const MODEL_NAMES = {
-                'gemini-3-flash-preview': 'Gemini 3 Flash Preview',
-                'gemini-3.1-pro-preview': 'Gemini 3.1 Pro Preview'
+                'google/gemini-3-flash-preview': 'Gemini 3 Flash Preview',
+                'google/gemini-3.1-pro-preview': 'Gemini 3.1 Pro Preview'
             };
             
             const chatContainer = document.getElementById('chatContainer');
@@ -412,10 +412,10 @@
             const selectedLabelSpan = document.getElementById('selectedModelLabel');
             const checkFlash = document.getElementById('checkFlash');
             const checkPro = document.getElementById('checkPro');
-            const flashItem = document.querySelector('.dropdown-item[data-model="gemini-3-flash-preview"]');
-            const proItem = document.querySelector('.dropdown-item[data-model="gemini-3.1-pro-preview"]');
+            const flashItem = document.querySelector('.dropdown-item[data-model="google/gemini-3-flash-preview"]');
+            const proItem = document.querySelector('.dropdown-item[data-model="google/gemini-3.1-pro-preview"]');
 
-            let currentModelId = 'gemini-3-flash-preview';
+            let currentModelId = 'google/gemini-3-flash-preview';
 
             const MAX_TOKENS = 32768;
             function countTokens(text) {
@@ -457,7 +457,7 @@
             }
 
             function createModelTag(modelId, elapsedSeconds = null) {
-                if (modelId === 'gemini-3.1-pro-preview' && elapsedSeconds !== null) {
+                if (modelId === 'google/gemini-3.1-pro-preview' && elapsedSeconds !== null) {
                     let div = document.createElement('div');
                     div.className = 'model-tag';
                     let minutes = Math.floor(elapsedSeconds / 60), seconds = elapsedSeconds % 60;
@@ -468,9 +468,9 @@
             }
 
             function updateDropdownSelection(modelId) {
-                checkFlash.style.display = modelId === 'gemini-3-flash-preview' ? 'flex' : 'none';
-                checkPro.style.display = modelId === 'gemini-3.1-pro-preview' ? 'flex' : 'none';
-                selectedLabelSpan.textContent = modelId === 'gemini-3-flash-preview' ? '快速' : 'Pro';
+                checkFlash.style.display = modelId === 'google/gemini-3-flash-preview' ? 'flex' : 'none';
+                checkPro.style.display = modelId === 'google/gemini-3.1-pro-preview' ? 'flex' : 'none';
+                selectedLabelSpan.textContent = modelId === 'google/gemini-3-flash-preview' ? '快速' : 'Pro';
             }
 
             pickerTrigger.addEventListener('click', (e) => {
@@ -485,12 +485,12 @@
             });
 
             flashItem.addEventListener('click', () => {
-                currentModelId = 'gemini-3-flash-preview';
+                currentModelId = 'google/gemini-3-flash-preview';
                 updateDropdownSelection(currentModelId);
                 dropdown.classList.remove('active');
             });
             proItem.addEventListener('click', () => {
-                currentModelId = 'gemini-3.1-pro-preview';
+                currentModelId = 'google/gemini-3.1-pro-preview';
                 updateDropdownSelection(currentModelId);
                 dropdown.classList.remove('active');
             });
@@ -583,7 +583,7 @@
 
                 let opts = { 
                     stream: true, 
-                    model: currentModelId,
+                    model: currentModelId
                 };
 
                 const startTime = Date.now();
