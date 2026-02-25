@@ -337,6 +337,9 @@
 
             function renderMarkdownWithMath(text) {
                 if (!window.katex) return marked.parse(text);
+
+                let originalEndsWithNewline = text.endsWith('\n');
+    
                 let formulas = {}, idx = 0;
                 text = text.replace(/\$\$([\s\S]*?)\$\$/g, (m, p) => {
                     try { let h = katex.renderToString(p, { displayMode: true, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
@@ -347,8 +350,19 @@
                 }).replace(/\$([^\$]+?)\$/g, (m, p) => {
                     try { let h = katex.renderToString(p, { displayMode: false, throwOnError: false }); let ph = `@@KATEX_${idx++}@@`; formulas[ph] = h; return ph; } catch { return m; }
                 });
+    
                 let html = marked.parse(text);
-                return html.replace(/@@KATEX_(\d+)@@/g, (match) => formulas[match] || match);
+
+                if (originalEndsWithNewline) {
+                    html = html.replace(/(<br\s*\/?>\s*)+$/, '');
+                    html = html.replace(/<\/p>\s*$/, '</p>');
+                }
+
+                html = html.replace(/@@KATEX_(\d+)@@/g, (match) => formulas[match] || match);
+
+                html = html.replace(/<br\s*\/?>\s*$/, '');
+    
+                return html;
             }
 
             const MODEL_NAMES = {
@@ -628,8 +642,7 @@
 
                         if (part?.text) {
                             full += part.text;
-                            const trimmedForRender = full.replace(/\s+$/, '');
-                            msgText.innerHTML = renderMarkdownWithMath(trimmedForRender);
+                            msgText.innerHTML = renderMarkdownWithMath(full);
                             chatContainer.scrollTop = chatContainer.scrollHeight;
                         }
                     }
