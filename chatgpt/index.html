@@ -75,7 +75,6 @@
             justify-content: space-between;
             white-space: nowrap;
         }
-        /* 模型选择框悬停背景变灰 (类似新对话按钮) */
         .select-selected:hover {
             background: #e5e5e5;
         }
@@ -171,7 +170,12 @@
             margin-bottom: 4px;
         }
         .model-tag div:first-child { font-weight: bold; }
-        .msg-text { font-size: 16px; line-height: 1.5; }
+        .msg-text {
+            font-size: 16px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
         .thinking-dot {
             width: 10px;
             height: 10px;
@@ -262,6 +266,43 @@
             color: #666;
         }
 
+        /* 复制按钮样式 */
+        .copy-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: #fff url('copy.svg') no-repeat center/contain;
+            border: none;
+            cursor: pointer;
+            margin-top: 4px;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .copy-btn:hover {
+            background-color: #e5e5e5;
+        }
+        .copy-btn:hover::after {
+            content: '复制';
+            position: absolute;
+            bottom: -38px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #000;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            z-index: 100;
+        }
+        .msg-row.ai .copy-btn {
+            align-self: flex-start;
+        }
+        .msg-row.user .copy-btn {
+            align-self: flex-end;
+        }
+
         html, body {
             height: 100%;
             overflow: hidden;
@@ -339,7 +380,7 @@
             const selectItems = document.getElementById('selectItems');
             const customSelect = document.getElementById('customSelect');
 
-            // ---------- token计数规则：英文字母/符号=1，中文字/符号=2，其他=1 ----------
+            // token计数规则：英文字母/符号=1，中文字/符号=2，其他=1
             const MAX_TOKENS = 32768;
 
             function countTokens(text) {
@@ -380,7 +421,6 @@
                     total -= removed.tokens;
                 }
             }
-            // ------------------------------------------------
 
             let isThinking = false, webEnabled = false, hasSent = false;
             welcome.textContent = ['有什么可以帮忙的？','我们先从哪里开始呢？','准备好了','今天有什么计划？','您今天在想什么？'][Math.floor(Math.random()*5)];
@@ -476,7 +516,8 @@
                 return sel ? sel.dataset.value : 'gpt-5.2-chat';
             }
 
-            function addMessage(text, isUser = false, streaming = false) {
+            // 新增：通用添加消息（用户或助手），自动附加复制按钮
+            function addMessage(text, isUser = false) {
                 if (isUser && !hasSent) {
                     welcome.style.display = 'none';
                     hasSent = true;
@@ -489,13 +530,29 @@
                 msgText.className = 'msg-text';
                 
                 if (isUser) {
+                    // 用户消息保留原有换行处理
                     msgText.innerHTML = text.replace(/\n/g, '<br>');
                 } else {
-                    msgText.innerHTML = renderMarkdownWithMath(text);
+                    // 助手消息（错误或纯文本）使用innerText确保安全且保留换行
+                    msgText.innerText = text;
                 }
                 
                 bubble.appendChild(msgText);
                 row.appendChild(bubble);
+                
+                // 创建复制按钮
+                let copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-btn';
+                copyBtn.dataset.original = text;
+                copyBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const txt = e.currentTarget.dataset.original;
+                    if (txt && navigator.clipboard) {
+                        navigator.clipboard.writeText(txt).catch(() => {});
+                    }
+                });
+                row.appendChild(copyBtn);
+                
                 chatContainer.appendChild(row);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
                 return msgText; 
@@ -508,7 +565,7 @@
 
                 inputBox.value = '';
                 inputBox.style.height = '';
-                addMessage(text, true); // 用户消息
+                addMessage(text, true); // 用户消息（自带复制按钮）
                 let finalModel = getFinalModel();
 
                 trimMessagesIfNeeded(MAX_TOKENS);
@@ -516,9 +573,9 @@
                 isThinking = true;
                 updateSendButtonState();
 
-                // 创建黑色呼吸圆点 (思考中)
+                // 黑色呼吸圆点
                 let thinkingRow = document.createElement('div');
-                thinkingRow.className = 'msg-row ai';  // 保持左对齐
+                thinkingRow.className = 'msg-row ai';
                 thinkingRow.innerHTML = '<div class="thinking-dot"></div>';
                 chatContainer.appendChild(thinkingRow);
                 chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -529,8 +586,8 @@
 
                 const startTime = Date.now();
                 let firstChunkReceived = false;
-                let bubbleRow = null;   // 保存气泡所在的行
-                let msgText = null;      // 气泡内的文本元素
+                let bubbleRow = null;
+                let msgText = null;
                 let full = '';
 
                 try {
@@ -542,7 +599,6 @@
                     
                     for await (let part of res) {
                         if (!firstChunkReceived) {
-                            // 收到第一个块：移除呼吸圆点，创建真实气泡
                             thinkingRow.remove();
                             thinkingRow = null;
 
@@ -566,13 +622,11 @@
                         }
                     }
 
-                    // 流式结束，处理可能空响应的情况
                     if (!firstChunkReceived) {
-                        // 从未收到任何块：移除圆点，显示空响应消息
                         if (thinkingRow) thinkingRow.remove();
-                        addMessage('模型返回了空响应', false);
+                        addMessage('模型返回了空响应', false); // 自带复制按钮
                     } else {
-                        // 正常结束，插入模型标签
+                        // 记录token并修剪
                         const userTokens = countTokens(text);
                         const assistantTokens = countTokens(full);
                         messages.push({ role: 'user', content: text, tokens: userTokens });
@@ -582,12 +636,24 @@
                         let elapsed = Math.floor((Date.now() - startTime) / 1000);
                         let tag = createModelTag(finalModel, finalModel === 'gpt-5.2-pro' ? elapsed : null);
                         bubbleRow.insertBefore(tag, bubbleRow.firstChild);
+
+                        // 为助手消息添加复制按钮
+                        let copyBtn = document.createElement('button');
+                        copyBtn.className = 'copy-btn';
+                        copyBtn.dataset.original = full;  // 原始markdown文本
+                        copyBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const txt = e.currentTarget.dataset.original;
+                            if (txt && navigator.clipboard) {
+                                navigator.clipboard.writeText(txt).catch(() => {});
+                            }
+                        });
+                        bubbleRow.appendChild(copyBtn);
                     }
 
                 } catch (err) {
-                    // 出错：移除呼吸圆点，显示错误消息
                     if (thinkingRow) thinkingRow.remove();
-                    addMessage('错误: ' + err.message, false);
+                    addMessage('错误: ' + err.message, false); // 自带复制按钮
                 } finally {
                     isThinking = false;
                     updateSendButtonState();
@@ -611,7 +677,6 @@
                 webEnabled = !webEnabled;
                 webToggle.classList.toggle('active', webEnabled);
             });
-            // 新聊天按钮：直接刷新，不提示
             newChat.addEventListener('click', () => {
                 location.reload();
             });
