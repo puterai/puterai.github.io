@@ -592,9 +592,32 @@
                 let full = '';
 
                 try {
+                    // --- 新增：内置搜索代理（GPT-5 Nano）---
+                    let searchSummary = null;
+                    try {
+                        const searchOpts = {
+                            model: 'gpt-5-nano',
+                            tools: [{ type: 'web_search' }],
+                            stream: false
+                        };
+                        const searchRes = await puter.ai.chat(text, searchOpts);
+                        // 提取返回的文本（兼容不同返回格式）
+                        const searchResult = searchRes?.text || searchRes?.toString?.() || '';
+                        if (searchResult && !searchResult.includes('无需联网')) {
+                            searchSummary = searchResult.trim();
+                        }
+                    } catch (e) {
+                        console.error('Search agent error:', e);
+                        // 搜索失败不影响主流程
+                    }
+                    // --- 结束搜索代理 ---
+
                     let history = messagesToText();
-                    let prompt = history ? history + '\n' : '';
-                    prompt += '用户: ' + text + '\nAI: ';
+                    let currentUserMsg = '用户: ' + text;
+                    if (searchSummary) {
+                        currentUserMsg += '\n\n[联网搜索结果]: ' + searchSummary;
+                    }
+                    let prompt = (history ? history + '\n' : '') + currentUserMsg + '\nAI: ';
 
                     let res = await puter.ai.chat(prompt, opts);
                     
