@@ -84,9 +84,13 @@
             content: "";
             width: 20px;
             height: 20px;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>') no-repeat center/contain;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>') no-repeat center/contain;
             margin-left: 10px;
             flex-shrink: 0;
+            transition: transform 0.3s;
+        }
+        .select-selected.expanded::after {
+            transform: rotate(90deg);
         }
         .select-items {
             position: absolute;
@@ -302,6 +306,16 @@
         }
         .msg-row.ai .copy-btn { align-self: flex-start; }
         .msg-row.user .copy-btn { align-self: flex-end; }
+        /* PC端窄输入框 (≥768px) */
+        @media (min-width: 768px) {
+            .input-container {
+                width: 70%;
+                margin: 0 auto;
+            }
+            .web-search-toggle {
+                margin-left: 15%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -489,7 +503,9 @@
                 let arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
                 arrow.setAttribute('width', '20'); arrow.setAttribute('height', '20'); arrow.setAttribute('viewBox', '0 0 24 24');
                 arrow.setAttribute('fill', 'none'); arrow.setAttribute('stroke', 'black'); arrow.setAttribute('stroke-width', '2');
-                arrow.innerHTML = '<path d="M6 9l6 6 6-6"/>';
+                arrow.setAttribute('style', 'transition: transform 0.3s; transform-origin: center;');
+                // 向右箭头
+                arrow.innerHTML = '<path d="M9 6l6 6-6 6"/>';
                 legacyHeader.appendChild(arrow);
 
                 let legacyContent = document.createElement('div');
@@ -521,7 +537,7 @@
                     e.stopPropagation();
                     let hidden = legacyContent.style.display === 'none';
                     legacyContent.style.display = hidden ? 'block' : 'none';
-                    arrow.style.transform = hidden ? 'rotate(180deg)' : '';
+                    arrow.style.transform = hidden ? 'rotate(90deg)' : 'none';
                 });
 
                 // 默认选中最新Instant模型 (gpt-5.3-chat)
@@ -723,9 +739,13 @@
             selectSelected.addEventListener('click', (e) => {
                 e.stopPropagation();
                 selectItems.classList.toggle('active');
+                selectSelected.classList.toggle('expanded'); // 控制箭头旋转
             });
             document.addEventListener('click', (e) => {
-                if (!customSelect.contains(e.target)) selectItems.classList.remove('active');
+                if (!customSelect.contains(e.target)) {
+                    selectItems.classList.remove('active');
+                    selectSelected.classList.remove('expanded');
+                }
             });
             selectItems.addEventListener('click', (e) => {
                 let target = e.target.closest('.select-item');
@@ -733,6 +753,7 @@
                 document.querySelectorAll('.select-item').forEach(el => el.classList.remove('selected'));
                 target.classList.add('selected');
                 updateSelectedDisplay(target.dataset.value);
+                // 保持原有行为：不关闭下拉框，因此不改变 expanded 类
             });
 
             buildSelect();
