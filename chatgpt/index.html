@@ -310,7 +310,7 @@
             <img src="icon.png" width="20" height="20" alt="new">
         </button>
         <div class="custom-select" id="customSelect">
-            <div class="select-selected" id="selectSelected">ChatGPT <span class="version">5.2 Instant</span></div>
+            <div class="select-selected" id="selectSelected">ChatGPT <span class="version">5.3 Instant</span></div>
             <div class="select-items" id="selectItems"></div>
         </div>
     </div>
@@ -334,11 +334,9 @@
         (function() {
             marked.setOptions({ breaks: true, gfm: true });
 
-            // 修复版的 renderMarkdownWithMath - 移除末尾空白
             function renderMarkdownWithMath(text) {
                 if (!window.katex) {
                     let html = marked.parse(text);
-                    // 移除末尾空白字符（包括换行和空格）
                     html = html.replace(/\s+$/, '');
                     return html;
                 }
@@ -356,14 +354,14 @@
                 
                 let html = marked.parse(text);
                 html = html.replace(/@@KATEX_(\d+)@@/g, (match) => formulas[match] || match);
-                
-                // 关键修复：移除末尾所有空白字符（包括换行和空格）
                 html = html.replace(/\s+$/, '');
-                
                 return html;
             }
 
             const MODEL_NAMES = {
+                'gpt-5.3-chat': 'GPT-5.3 Instant',
+                'gpt-5.4': 'GPT-5.4 Thinking',
+                'gpt-5.4-pro': 'GPT-5.4 Pro',
                 'gpt-5.2-chat': 'GPT-5.2 Instant',
                 'gpt-5.2': 'GPT-5.2 Thinking',
                 'gpt-5.2-pro': 'GPT-5.2 Pro',
@@ -372,9 +370,9 @@
                 'gpt-4o': 'GPT-4o'
             };
             const MODEL_LIST = [
-                { id: 'gpt-5.2-chat', title: 'Instant', desc: '即刻回答' },
-                { id: 'gpt-5.2', title: 'Thinking', desc: '思考更充分，回答更优质' },
-                { id: 'gpt-5.2-pro', title: 'Pro', desc: '研究级智能模型' }
+                { id: 'gpt-5.3-chat', title: 'Instant', desc: '即刻回答' },
+                { id: 'gpt-5.4', title: 'Thinking', desc: '思考更充分，回答更优质' },
+                { id: 'gpt-5.4-pro', title: 'Pro', desc: '研究级智能模型' }
             ];
             
             const chatContainer = document.getElementById('chatContainer');
@@ -442,7 +440,8 @@
                 line1.style.fontWeight = 'bold';
                 line1.textContent = `Request for ${MODEL_NAMES[modelId] || modelId}`;
                 div.appendChild(line1);
-                if (modelId === 'gpt-5.2-pro' && elapsedSeconds !== null) {
+
+                if (modelId.endsWith('-pro') && elapsedSeconds !== null) {
                     let line2 = document.createElement('div');
                     let minutes = Math.floor(elapsedSeconds / 60), seconds = elapsedSeconds % 60;
                     line2.textContent = `Reasoned for ${minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`}`;
@@ -459,9 +458,10 @@
 
             function buildSelect() {
                 selectItems.innerHTML = '';
+                
                 let group = document.createElement('div');
                 group.className = 'select-group';
-                group.textContent = 'GPT-5.2';
+                group.textContent = 'Latest';
                 selectItems.appendChild(group);
 
                 MODEL_LIST.forEach(item => {
@@ -469,7 +469,13 @@
                     opt.className = 'select-item';
                     opt.dataset.value = item.id;
                     opt.dataset.title = item.title;
-                    opt.innerHTML = `<span class="item-title">${item.title}</span><span class="item-desc">${item.desc}</span>`;
+                    
+                    let version = '';
+                    if (item.id === 'gpt-5.3-chat') version = '5.3';
+                    else if (item.id === 'gpt-5.4' || item.id === 'gpt-5.4-pro') version = '5.4';
+                    
+                    let titleHtml = `${item.title} ${version ? '<span style="color:gray;">' + version + '</span>' : ''}`;
+                    opt.innerHTML = `<span class="item-title">${titleHtml}</span><span class="item-desc">${item.desc}</span>`;
                     selectItems.appendChild(opt);
                 });
 
@@ -479,7 +485,7 @@
                 let legacyHeader = document.createElement('div');
                 legacyHeader.className = 'select-group';
                 legacyHeader.style.cssText = 'display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:8px 14px';
-                legacyHeader.innerHTML = 'Legacy Models';
+                legacyHeader.innerHTML = '传统模型';
                 let arrow = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
                 arrow.setAttribute('width', '20'); arrow.setAttribute('height', '20'); arrow.setAttribute('viewBox', '0 0 24 24');
                 arrow.setAttribute('fill', 'none'); arrow.setAttribute('stroke', 'black'); arrow.setAttribute('stroke-width', '2');
@@ -489,11 +495,16 @@
                 let legacyContent = document.createElement('div');
                 legacyContent.style.display = 'none';
 
-                [
+                const legacyModels = [
+                    { value: 'gpt-5.2-chat', title: 'GPT-5.2 Instant' },
+                    { value: 'gpt-5.2', title: 'GPT-5.2 Thinking' },
+                    { value: 'gpt-5.2-pro', title: 'GPT-5.2 Pro' },
                     { value: 'gpt-5.1-chat-latest', title: 'GPT-5.1 Instant' },
                     { value: 'gpt-5.1', title: 'GPT-5.1 Thinking' },
                     { value: 'gpt-4o', title: 'GPT-4o' }
-                ].forEach(model => {
+                ];
+
+                legacyModels.forEach(model => {
                     let opt = document.createElement('div');
                     opt.className = 'select-item';
                     opt.dataset.value = model.value;
@@ -513,13 +524,15 @@
                     arrow.style.transform = hidden ? 'rotate(180deg)' : '';
                 });
 
-                document.querySelector('.select-item[data-value="gpt-5.2-chat"]')?.classList.add('selected');
-                updateSelectedDisplay('gpt-5.2-chat');
+                // 默认选中最新Instant模型 (gpt-5.3-chat)
+                let defaultItem = document.querySelector('.select-item[data-value="gpt-5.3-chat"]');
+                if (defaultItem) defaultItem.classList.add('selected');
+                updateSelectedDisplay('gpt-5.3-chat');
             }
 
             function getFinalModel() {
                 let sel = document.querySelector('.select-item.selected');
-                return sel ? sel.dataset.value : 'gpt-5.2-chat';
+                return sel ? sel.dataset.value : 'gpt-5.3-chat';
             }
 
             function createCopySVG() {
@@ -656,7 +669,7 @@
                         trimMessagesIfNeeded(MAX_TOKENS);
 
                         let elapsed = Math.floor((Date.now() - startTime) / 1000);
-                        let tag = createModelTag(finalModel, finalModel === 'gpt-5.2-pro' ? elapsed : null);
+                        let tag = createModelTag(finalModel, finalModel.endsWith('-pro') ? elapsed : null);
                         bubbleRow.insertBefore(tag, bubbleRow.firstChild);
 
                         let copyBtn = document.createElement('button');
@@ -672,7 +685,6 @@
                         });
                         bubbleRow.appendChild(copyBtn);
 
-                        // 额外保险：DOM层清理一次
                         if (msgText && msgText.lastChild && msgText.lastChild.nodeType === 3 && /^\s*$/.test(msgText.lastChild.textContent)) {
                             msgText.removeChild(msgText.lastChild);
                         }
