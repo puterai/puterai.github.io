@@ -156,7 +156,7 @@
         svg.setAttribute("width", "16");
         svg.setAttribute("height", "16");
         const path1 = document.createElementNS(xmlns, "path");
-        path1.setAttribute("d", "M819.2 819.2v-68.266667h68.266667c40.96 0 68.266667-27.306667 68.266666-68.266666V136.533333c0-40.96-27.306667-68.266667-68.266666-68.266666H341.333333c-40.96 0-68.266667 27.306667-68.266666 68.266666v68.266667H204.8V136.533333c0-75.093333 61.44-136.533333 136.533333-136.533333h546.133334c75.093333 0 136.533333 61.44 136.533333 136.533333v546.133334c0 75.093333-61.44 136.533333-136.533333 136.533333h-68.266667z");
+        path1.setAttribute("d", "M819.2 819.2v-68.266667h68.266667c40.96 0 68.266667-27.306667 68.266666-68.266666V136.533333c0-40.96-27.306667-68.266667-68.266666-68.266667H341.333333c-40.96 0-68.266667 27.306667-68.266666 68.266666v68.266667H204.8V136.533333c0-75.093333 61.44-136.533333 136.533333-136.533333h546.133334c75.093333 0 136.533333 61.44 136.533333 136.533333v546.133334c0 75.093333-61.44 136.533333-136.533333 136.533333h-68.266667z");
         path1.setAttribute("fill", "#66615c");
         const path2 = document.createElementNS(xmlns, "path");
         path2.setAttribute("d", "M136.533333 204.8h546.133334c75.093333 0 136.533333 61.44 136.533333 136.533333v546.133334c0 75.093333-61.44 136.533333-136.533333 136.533333H136.533333c-75.093333 0-136.533333-61.44-136.533333-136.533333V341.333333c0-75.093333 61.44-136.533333 136.533333-136.533333z m0 68.266667c-40.96 0-68.266667 27.306667-68.266666 68.266666v546.133334c0 40.96 27.306667 68.266667 68.266666 68.266666h546.133334c40.96 0 68.266667-27.306667 68.266666-68.266666V341.333333c0-40.96-27.306667-68.266667-68.266666-68.266666H136.533333z");
@@ -164,6 +164,37 @@
         svg.appendChild(path1);
         svg.appendChild(path2);
         return svg;
+    }
+
+    function createCheckSVG() {
+        const xmlns = "http://www.w3.org/2000/svg";
+        const svg = document.createElementNS(xmlns, "svg");
+        svg.setAttribute("viewBox", "0 0 24 24");
+        svg.setAttribute("width", "16");
+        svg.setAttribute("height", "16");
+        const path = document.createElementNS(xmlns, "path");
+        path.setAttribute("d", "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z");
+        path.setAttribute("fill", "#cc6543");
+        svg.appendChild(path);
+        return svg;
+    }
+
+    function setupCopyButton(btn, textToCopy) {
+        btn.dataset.original = textToCopy;
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const txt = e.currentTarget.dataset.original;
+            if (txt && navigator.clipboard) {
+                navigator.clipboard.writeText(txt).then(() => {
+                    btn.innerHTML = '';
+                    btn.appendChild(createCheckSVG());
+                    setTimeout(() => {
+                        btn.innerHTML = '';
+                        btn.appendChild(createCopySVG());
+                    }, 1500);
+                }).catch(() => {});
+            }
+        });
     }
 
     function addMessage(text, isUser = false) {
@@ -185,7 +216,6 @@
         msgText.className = 'msg-text';
         
         if (isUser) {
-            // 对用户的原生代码输入执行实体编码转义，彻底治愈HTML预览漏洞
             msgText.innerHTML = escapeHtml(text).replace(/\n/g, '<br>');
         } else {
             msgText.innerHTML = renderMarkdownWithMath(text);
@@ -197,14 +227,7 @@
         let copyBtn = document.createElement('button');
         copyBtn.className = 'copy-btn';
         copyBtn.appendChild(createCopySVG());
-        copyBtn.dataset.original = text;
-        copyBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const txt = e.currentTarget.dataset.original;
-            if (txt && navigator.clipboard) {
-                navigator.clipboard.writeText(txt).catch(() => {});
-            }
-        });
+        setupCopyButton(copyBtn, text);
         wrapper.appendChild(copyBtn);
         
         row.appendChild(wrapper);
@@ -294,14 +317,6 @@
                     let copyBtn = document.createElement('button');
                     copyBtn.className = 'copy-btn';
                     copyBtn.appendChild(createCopySVG());
-                    copyBtn.dataset.original = '';
-                    copyBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const txt = e.currentTarget.dataset.original;
-                        if (txt && navigator.clipboard) {
-                            navigator.clipboard.writeText(txt).catch(() => {});
-                        }
-                    });
                     wrapper.appendChild(copyBtn);
                     
                     row.appendChild(wrapper);
@@ -335,7 +350,7 @@
 
                 const copyBtn = bubbleRow.querySelector('.copy-btn');
                 if (copyBtn) {
-                    copyBtn.dataset.original = full;
+                    setupCopyButton(copyBtn, full);
                 }
 
                 if (msgText && msgText.lastChild && msgText.lastChild.nodeType === 3 && /^\s*$/.test(msgText.lastChild.textContent)) {
