@@ -13,6 +13,15 @@
     font-display: swap;
 }
 
+::selection {
+    background-color: #CDE2FB;
+    color: #000000;
+}
+::-moz-selection {
+    background-color: #CDE2FB;
+    color: #000000;
+}
+
 * { 
     margin: 0; 
     padding: 0; 
