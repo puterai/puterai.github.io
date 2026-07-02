@@ -15,7 +15,10 @@
 </head>
 <body>
     <div class="header">
-        <button class="claude-btn" id="claudeRefreshBtn">Claude</button>
+        <div class="claude-brand-wrapper" id="claudeRefreshBtn">
+            <img src="favicon.png" alt="Claude Icon" class="claude-icon">
+            <span class="claude-title-text">Claude</span>
+        </div>
     </div>
     
     <div class="chat-container" id="chatContainer">
@@ -29,7 +32,7 @@
                 <span class="arrow"></span>
             </div>
             <div class="model-picker-dropdown" id="modelPickerDropdown">
-                <div class="dropdown-header">Claude Matrix</div>
+                <div class="dropdown-header">Claude Models</div>
                 
                 <div class="dropdown-item" data-model="claude-haiku-4-5" data-label="Haiku 4.5">
                     <div class="item-info">
