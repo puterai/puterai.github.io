@@ -1,1 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Claude</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="icon" href="favicon.png" type="image/png">
+    
+    <link rel="stylesheet" href="/lib/katex/katex.min.css">
+    <script src="/lib/katex/katex.min.js"></script>
+    <script src="https://js.puter.com/v2/"></script>
+    <script src="/lib/marked.min.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="header">
+        <button class="claude-btn" id="claudeRefreshBtn">Claude</button>
+    </div>
+    
+    <div class="chat-container" id="chatContainer">
+        <div class="welcome-message" id="welcomeMessage">我是 Claude。今天想聊点什么？</div>
+    </div>
+    
+    <div class="bottom-section">
+        <div class="input-container" id="inputContainer">
+            <div class="model-picker-trigger" id="modelPickerTrigger">
+                <span id="selectedModelLabel">Haiku 4.5</span>
+                <span class="arrow"></span>
+            </div>
+            <div class="model-picker-dropdown" id="modelPickerDropdown">
+                <div class="dropdown-header">Claude Matrix</div>
+                
+                <div class="dropdown-item" data-model="claude-haiku-4-5" data-label="Haiku 4.5">
+                    <div class="item-info">
+                        <span class="item-title">Claude Haiku 4.5</span>
+                        <span class="item-desc">轻快敏捷，适合即时响应</span>
+                    </div>
+                    <span class="check-mark" style="display: none;" id="checkHaiku">
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                    </span>
+                </div>
+                
+                <div class="dropdown-item" data-model="claude-opus-4-8" data-label="Opus 4.8">
+                    <div class="item-info">
+                        <span class="item-title">Claude Opus 4.8</span>
+                        <span class="item-desc">全面而深刻，处理复杂逻辑</span>
+                    </div>
+                    <span class="check-mark" style="display: none;" id="checkOpus">
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                    </span>
+                </div>
 
+                <div class="dropdown-item" data-model="claude-fable-5" data-label="Fable 5">
+                    <div class="item-info">
+                        <span class="item-title">Claude Fable 5</span>
+                        <span class="item-desc">前沿尖端，极高阶的研究与推理</span>
+                    </div>
+                    <span class="check-mark" style="display: none;" id="checkFable">
+                        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                    </span>
+                </div>
+            </div>
+
+            <textarea class="input-box" id="inputBox" placeholder="向 Claude 提问..." rows="2"></textarea>
+            <button class="send-button" id="sendButton">
+                <svg viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.58L20 12l-8-8-8 8z"></path></svg>
+            </button>
+        </div>
+        <div class="footer">须遵守《Anthropic 条款》和《隐私权政策》。Claude 是一款 AI 工具，其回答未必完全准确。</div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
