@@ -25,31 +25,41 @@ html, body {
 }
 body {
     font-family: 'Anthropic Sans', 'Segoe UI', Roboto, sans-serif;
-    background: #f9f6f0;
+    background: #FAF9F5;
     color: #191816;
     display: flex;
     flex-direction: column;
 }
 .header {
     padding: 16px 20px;
-    background: #f9f6f0;
+    background: #FAF9F5;
     display: flex;
     align-items: center;
     flex-shrink: 0;
 }
-.claude-btn {
+.claude-brand-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    padding: 4px 0;
+}
+.claude-brand-wrapper:hover {
+    opacity: 0.85;
+}
+.claude-icon {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+}
+.claude-title-text {
+    font-family: 'Anthropic Serif', Georgia, serif;
     font-size: 26px;
     font-weight: 500;
     letter-spacing: -0.03em;
-    background: transparent;
-    border: none;
-    color: #cc6543;
-    cursor: pointer;
-    padding: 4px 0;
-    font-family: 'Anthropic Sans', -apple-system, sans-serif;
-}
-.claude-btn:hover {
-    opacity: 0.85;
+    color: #191816;
+    line-height: 1;
 }
 
 .chat-container {
@@ -73,13 +83,13 @@ body {
 }
 .msg-content-wrapper {
     display: flex;
-    align-items: flex-start;
-    gap: 10px;
+    flex-direction: column;
+    gap: 4px;
     max-width: 85%;
     width: fit-content;
 }
 .msg-row.user .msg-content-wrapper {
-    flex-direction: row-reverse;
+    align-items: flex-end;
 }
 .msg-bubble {
     background: #ffffff;
@@ -88,10 +98,10 @@ body {
     word-wrap: break-word;
     width: fit-content;
     box-shadow: 0 1px 4px rgba(25, 24, 22, 0.04);
-    border: 1px solid #eadecc; /* 柔和的卡其色边框 */
+    border: 1px solid #eadecc;
 }
 .msg-bubble.user { 
-    background: #f3ece0; /* 用户气泡采用稍深的暖沙色 */
+    background: #f3ece0;
     border: 1px solid #dfd5c4;
 }
 .model-tag {
@@ -140,7 +150,7 @@ body {
 }
 .bottom-section {
     padding: 15px 20px;
-    background: #f9f6f0;
+    background: #FAF9F5;
     flex-shrink: 0;
 }
 .input-container {
@@ -205,11 +215,12 @@ body {
     width: 320px;
     background: #f3ece0;
     border-radius: 16px;
-    padding: 8px 0;
+    padding: 8px 0 0 0;
     box-shadow: 0 8px 30px rgba(25,24,22,0.12);
     border: 1px solid #dfd5c4;
     display: none;
     z-index: 1100;
+    overflow: hidden;
 }
 .model-picker-dropdown.active {
     display: block;
@@ -291,8 +302,8 @@ body {
 }
 .send-button svg { 
     fill: #191816; 
-    width: 18px; 
-    height: 18px; 
+    width: 22px;
+    height: 22px;
     transition: fill 0.1s;
 }
 .footer {
@@ -309,8 +320,8 @@ a {
 }
 
 .copy-btn {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     background: none;
     border: none;
     cursor: pointer;
@@ -321,7 +332,13 @@ a {
     flex-shrink: 0;
     opacity: 0.5;
     transition: opacity 0.1s;
-    margin-top: 4px;
+    margin-top: 2px;
+}
+.msg-row.user .copy-btn {
+    align-self: flex-end;
+}
+.msg-row.ai .copy-btn {
+    align-self: flex-start;
 }
 .copy-btn:hover {
     opacity: 1;
@@ -333,4 +350,8 @@ a {
 }
 .copy-btn svg path {
     fill: #66615c;
+}
+
+.gesture-disabled {
+    touch-action: none;
 }
