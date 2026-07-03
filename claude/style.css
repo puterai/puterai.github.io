@@ -44,6 +44,7 @@ body {
     background: #FAF9F5;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     flex-shrink: 0;
 }
 .claude-brand-wrapper {
@@ -70,7 +71,36 @@ body {
     color: #191816;
     line-height: 1;
 }
-
+.auth-container {
+    display: flex;
+    align-items: center;
+}
+.login-btn {
+    font-family: 'Anthropic Sans', "PingFang SC", "Microsoft YaHei", sans-serif;
+    background-color: #191816;
+    color: #FAF9F5;
+    border: none;
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+.login-btn:hover {
+    background-color: #33312e;
+}
+.login-btn:active {
+    opacity: 0.9;
+}
+.input-container.disabled-mask {
+    opacity: 0.6;
+    background: #f5eedf !important;
+    cursor: not-allowed;
+}
+.input-container.disabled-mask * {
+    pointer-events: none !important;
+}
 .chat-container {
     flex: 1;
     overflow-y: auto;
@@ -327,7 +357,6 @@ a {
     color: #cc6543; 
     text-decoration: none; 
 }
-
 .copy-btn {
     width: 20px;
     height: 20px;
@@ -360,7 +389,6 @@ a {
 .copy-btn svg path {
     fill: #66615c;
 }
-
 .gesture-disabled {
     touch-action: none;
 }
