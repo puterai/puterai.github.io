@@ -1,6 +1,64 @@
 (function() {
     marked.setOptions({ breaks: true, gfm: true });
 
+    const loginBtn = document.getElementById('loginBtn');
+    const inputContainer = document.getElementById('inputContainer');
+    const chatContainer = document.getElementById('chatContainer');
+    const inputBox = document.getElementById('inputBox');
+    const sendBtn = document.getElementById('sendButton');
+    const welcome = document.getElementById('welcomeMessage');
+    const claudeRefreshBtn = document.getElementById('claudeRefreshBtn');
+
+    const pickerTrigger = document.getElementById('modelPickerTrigger');
+    const dropdown = document.getElementById('modelPickerDropdown');
+    const selectedLabelSpan = document.getElementById('selectedModelLabel');
+    
+    const checkHaiku = document.getElementById('checkHaiku');
+    const checkOpus = document.getElementById('checkOpus');
+    const checkFable = document.getElementById('checkFable');
+    
+    const haikuItem = document.querySelector('.dropdown-item[data-model="claude-haiku-4-5"]');
+    const opusItem = document.querySelector('.dropdown-item[data-model="claude-opus-4-8"]');
+    const fableItem = document.querySelector('.dropdown-item[data-model="claude-fable-5"]');
+
+    let currentModelId = 'claude-haiku-4-5';
+    let messages = [];
+    let isThinking = false;
+    let firstMessageSent = false;
+    const MAX_TOKENS = 32768;
+
+    const MODEL_NAMES = {
+        'claude-haiku-4-5': 'Claude Haiku 4.5',
+        'claude-opus-4-8': 'Claude Opus 4.8',
+        'claude-fable-5': 'Claude Fable 5'
+    };
+
+    function checkAuthStatus() {
+        const isSignedIn = puter.auth.isSignedIn();
+        if (isSignedIn) {
+            loginBtn.style.display = 'none';
+            inputBox.disabled = false;
+            inputBox.placeholder = "向 Claude 提问...";
+            inputContainer.classList.remove('disabled-mask');
+            updateSendButtonState();
+        } else {
+            loginBtn.style.display = 'block';
+            inputBox.disabled = true;
+            inputBox.placeholder = "请先登录以解锁提问功能...";
+            sendBtn.disabled = true;
+            inputContainer.classList.add('disabled-mask');
+        }
+    }
+
+    loginBtn.addEventListener('click', async () => {
+        try {
+            await puter.auth.signIn();
+            checkAuthStatus();
+        } catch (err) {
+            console.error(err);
+        }
+    });
+
     function escapeHtml(text) {
         if (!text) return '';
         return text
@@ -30,37 +88,9 @@
         
         let html = marked.parse(text);
         html = html.replace(/@@KATEX_(\d+)@@/g, (match) => formulas[match] || match);
-
         return html.replace(/\s+$/, '');
     }
 
-    const MODEL_NAMES = {
-        'claude-haiku-4-5': 'Claude Haiku 4.5',
-        'claude-opus-4-8': 'Claude Opus 4.8',
-        'claude-fable-5': 'Claude Fable 5'
-    };
-    
-    const chatContainer = document.getElementById('chatContainer');
-    const inputBox = document.getElementById('inputBox');
-    const sendBtn = document.getElementById('sendButton');
-    const welcome = document.getElementById('welcomeMessage');
-    const claudeRefreshBtn = document.getElementById('claudeRefreshBtn');
-
-    const pickerTrigger = document.getElementById('modelPickerTrigger');
-    const dropdown = document.getElementById('modelPickerDropdown');
-    const selectedLabelSpan = document.getElementById('selectedModelLabel');
-    
-    const checkHaiku = document.getElementById('checkHaiku');
-    const checkOpus = document.getElementById('checkOpus');
-    const checkFable = document.getElementById('checkFable');
-    
-    const haikuItem = document.querySelector('.dropdown-item[data-model="claude-haiku-4-5"]');
-    const opusItem = document.querySelector('.dropdown-item[data-model="claude-opus-4-8"]');
-    const fableItem = document.querySelector('.dropdown-item[data-model="claude-fable-5"]');
-
-    let currentModelId = 'claude-haiku-4-5';
-
-    const MAX_TOKENS = 32768;
     function countTokens(text) {
         if (!text) return 0;
         let tokens = 0;
@@ -75,10 +105,10 @@
         return tokens;
     }
 
-    let messages = [];
     function messagesToText() {
         return messages.map(msg => (msg.role === 'user' ? '用户: ' : 'AI: ') + msg.content).join('\n');
     }
+
     function trimMessagesIfNeeded(limit = MAX_TOKENS) {
         let total = messages.reduce((sum, msg) => sum + msg.tokens, 0);
         while (total > limit && messages.length >= 2) {
@@ -92,10 +122,11 @@
         }
     }
 
-    let isThinking = false;
-    let firstMessageSent = false;
-
     function updateSendButtonState() {
+        if (!puter.auth.isSignedIn()) {
+            sendBtn.disabled = true;
+            return;
+        }
         sendBtn.disabled = isThinking || !inputBox.value.trim();
     }
 
@@ -121,6 +152,7 @@
     }
 
     pickerTrigger.addEventListener('click', (e) => {
+        if (!puter.auth.isSignedIn()) return;
         e.stopPropagation();
         dropdown.classList.toggle('active');
     });
@@ -364,7 +396,7 @@
         } finally {
             isThinking = false;
             updateSendButtonState();
-            inputBox.focus();
+            if (puter.auth.isSignedIn()) inputBox.focus();
         }
     }
 
@@ -382,8 +414,8 @@
     sendBtn.addEventListener('click', send);
     claudeRefreshBtn.addEventListener('click', () => location.reload());
 
-    updateSendButtonState();
-    inputBox.focus();
+    checkAuthStatus();
+    if (puter.auth.isSignedIn()) inputBox.focus();
 
     document.addEventListener('gesturestart', (e) => e.preventDefault());
     document.addEventListener('touchmove', (e) => {
