@@ -44,7 +44,7 @@
         } else {
             loginBtn.style.display = 'block';
             inputBox.disabled = true;
-            inputBox.placeholder = "请先登录以解锁提问功能...";
+            inputBox.placeholder = "请先 Log in 以使用";
             sendBtn.disabled = true;
             inputContainer.classList.add('disabled-mask');
         }
