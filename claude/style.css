@@ -33,7 +33,7 @@ html, body {
     margin: 0;
 }
 body {
-    font-family: 'Anthropic Sans', 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Anthropic Sans', "PingFang SC", "Microsoft YaHei", sans-serif;
     background: #FAF9F5;
     color: #191816;
     display: flex;
@@ -63,7 +63,7 @@ body {
     object-fit: contain;
 }
 .claude-title-text {
-    font-family: 'Anthropic Serif', sans-serif;
+    font-family: 'Anthropic Serif', "PingFang SC", "Microsoft YaHei", sans-serif;
     font-size: 26px;
     font-weight: 500;
     letter-spacing: -0.03em;
@@ -146,7 +146,7 @@ body {
     100% { transform: scale(1); opacity: 0.6; }
 }
 .welcome-message {
-    font-family: 'Anthropic Serif', serif;
+    font-family: 'Anthropic Serif', "PingFang SC", "Microsoft YaHei", serif;
     text-align: center;
     padding: 40px 20px;
     color: #191816;
