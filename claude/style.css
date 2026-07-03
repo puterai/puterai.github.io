@@ -63,7 +63,7 @@ body {
     object-fit: contain;
 }
 .claude-title-text {
-    font-family: 'Anthropic Serif', Georgia, serif;
+    font-family: 'Anthropic Serif', Georgia, sans-serif;
     font-size: 26px;
     font-weight: 500;
     letter-spacing: -0.03em;
