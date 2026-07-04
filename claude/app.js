@@ -345,11 +345,6 @@
                     
                     bubble.appendChild(msgText);
                     wrapper.appendChild(bubble);
-
-                    let copyBtn = document.createElement('button');
-                    copyBtn.className = 'copy-btn';
-                    copyBtn.appendChild(createCopySVG());
-                    wrapper.appendChild(copyBtn);
                     
                     row.appendChild(wrapper);
                     chatContainer.appendChild(row);
@@ -380,10 +375,11 @@
                     bubbleRow.insertBefore(tag, bubbleRow.firstChild);
                 }
 
-                const copyBtn = bubbleRow.querySelector('.copy-btn');
-                if (copyBtn) {
-                    setupCopyButton(copyBtn, full);
-                }
+                let copyBtn = document.createElement('button');
+                copyBtn.className = 'copy-btn';
+                copyBtn.appendChild(createCopySVG());
+                setupCopyButton(copyBtn, full);
+                bubbleRow.querySelector('.msg-content-wrapper').appendChild(copyBtn);
 
                 if (msgText && msgText.lastChild && msgText.lastChild.nodeType === 3 && /^\s*$/.test(msgText.lastChild.textContent)) {
                     msgText.removeChild(msgText.lastChild);
