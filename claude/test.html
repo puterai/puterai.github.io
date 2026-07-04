@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Markdown 样式本地测试</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <link rel="stylesheet" href="markdown.css">
+
+    <style>
+        /* 模拟你网站原本的 Claude 聊天背景和气泡容器 */
+        body {
+            background: #FAF9F5;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+        .chat-container {
+            width: 100%;
+            max-width: 700px;
+        }
+        /* 模拟你的 AI 消息气泡外壳 */
+        .msg-bubble {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px 20px;
+            box-shadow: 0 1px 4px rgba(25, 24, 22, 0.04);
+            border: 1px solid #eadecc;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <h3>AI 回复气泡效果预览：</h3>
+    <br>
+    <div class="msg-bubble">
+        <div class="markdown-body" id="markdown-content">
+            </div>
+    </div>
+</div>
+
+<script>
+    // 模拟一段 AI 经常返回的复杂 Markdown 文本
+    const mockMarkdownText = `# 我是 H1 标题
+这是普通段落文本。我们来看看行内代码 \`const ai = 'Claude'\` 的显示情况。这里应该有紧凑的段落间距。
+
+## 我是 H2 标题
+接下来是一个无序列表：
+* 第一项内容介绍
+* 第二项内容介绍，带有**加粗文字**以示强调
+* 第三项内容
+
+### 我是 H3 标题
+下面是一段独立的代码块：
+\`\`\`javascript
+function greet(user) {
+    console.log(\`Hello, \${user}! Welcome to Claude UI.\`);
+}
+greet('Developer');
+\`\`\`
+
+> 这里是一个引用块（Blockquote），通常用于强调或者补充说明某些核心背景信息。
+
+下面是一个多维表格数据展示：
+
+| 模型名称 | 速度 | 适用场景 |
+| :--- | :--- | :--- |
+| Haiku 4.5 | 极快 | 即时响应与简单对话 |
+| Opus 4.8 | 中等 | 复杂逻辑与深度推理 |
+`;
+
+    // 执行渲染
+    marked.setOptions({ breaks: true, gfm: true });
+    document.getElementById('markdown-content').innerHTML = marked.parse(mockMarkdownText);
+</script>
+
+</body>
+</html>
