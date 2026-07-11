@@ -41,22 +41,13 @@
 
 .markdown-body code {
     font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-    background-color: rgba(25, 24, 22, 0.08) !important;
+    background-color: rgba(0, 0, 0, 0.05) !important;
     color: #cc6543 !important;
-    padding: 3px 6px !important;
-    margin: 0 2px;
-    border-radius: 6px !important;
+    padding: 2px 8px !important;
+    margin: 0 3px;
+    border-radius: 20px !important;
     font-size: 0.85em !important;
-    border: 1px solid rgba(25, 24, 22, 0.05) !important;
-}
-
-.markdown-body pre code {
-    background-color: transparent !important;
-    color: inherit !important;
-    padding: 0 !important;
-    border-radius: 0 !important;
-    border: none !important;
-    font-size: 13.5px !important;
+    border: 1px solid rgba(0, 0, 0, 0.02) !important;
 }
 
 .markdown-body pre {
@@ -66,6 +57,16 @@
     border: 1px solid #dfd5c4;
     border-radius: 8px;
     overflow-x: auto;
+}
+
+.markdown-body pre code {
+    background-color: transparent !important;
+    color: inherit !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    font-size: 13.5px !important;
 }
 
 .markdown-body table {
