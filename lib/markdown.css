@@ -2,19 +2,19 @@
     box-sizing: border-box;
 }
 
-.markdown-body {
+.msg-text {
     font-size: 15px;
     line-height: 1.6;
     color: #1f2328;
     word-break: break-word;
 }
 
-.markdown-body h1,
-.markdown-body h2,
-.markdown-body h3,
-.markdown-body h4,
-.markdown-body h5,
-.markdown-body h6 {
+.msg-text h1,
+.msg-text h2,
+.msg-text h3,
+.msg-text h4,
+.msg-text h5,
+.msg-text h6 {
     margin-top: 16px;
     margin-bottom: 8px;
     font-weight: 600;
@@ -22,28 +22,28 @@
     color: #1f2328;
 }
 
-.markdown-body h1 { font-size: 1.4rem; border: none; padding: 0; } 
-.markdown-body h2 { font-size: 1.25rem; }
-.markdown-body h3 { font-size: 1.15rem; }
-.markdown-body h4 { font-size: 1.0rem; }
+.msg-text h1 { font-size: 1.4rem; border: none; padding: 0; } 
+.msg-text h2 { font-size: 1.25rem; }
+.msg-text h3 { font-size: 1.15rem; }
+.msg-text h4 { font-size: 1.0rem; }
 
-.markdown-body p {
+.msg-text p {
     margin-top: 0;
     margin-bottom: 10px;
 }
 
-.markdown-body ul,
-.markdown-body ol {
+.msg-text ul,
+.msg-text ol {
     margin-top: 0;
     margin-bottom: 10px;
     padding-left: 20px;
 }
 
-.markdown-body li {
+.msg-text li {
     margin-bottom: 4px;
 }
 
-.markdown-body code {
+.msg-text code {
     font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
     background-color: rgba(0, 0, 0, 0.05) !important;
     color: #24292e !important;
@@ -54,7 +54,7 @@
     border: 1px solid rgba(0, 0, 0, 0.03) !important;
 }
 
-.markdown-body pre {
+.msg-text pre {
     margin: 12px 0;
     padding: 14px;
     background-color: #f6f8fa;
@@ -63,7 +63,7 @@
     overflow-x: auto;
 }
 
-.markdown-body pre code {
+.msg-text pre code {
     background-color: transparent !important;
     color: inherit !important;
     padding: 0 !important;
@@ -73,7 +73,7 @@
     font-size: 13.5px !important;
 }
 
-.markdown-body table {
+.msg-text table {
     display: block;
     width: 100% !important;
     overflow-x: auto;
@@ -81,29 +81,29 @@
     margin: 14px 0 !important;
 }
 
-.markdown-body table th,
-.markdown-body table td {
+.msg-text table th,
+.msg-text table td {
     border: 1px solid #d0d7de !important;
     padding: 8px 12px !important;
     text-align: left;
     font-size: 14px;
 }
 
-.markdown-body table th {
+.msg-text table th {
     background-color: #f6f8fa !important;
     font-weight: 600;
 }
 
-.markdown-body table tr:nth-child(even) {
+.msg-text table tr:nth-child(even) {
     background-color: rgba(0, 0, 0, 0.015);
 }
 
-.markdown-body blockquote {
+.msg-text blockquote {
     margin: 10px 0;
     padding-left: 14px;
     border-left: 4px solid #d0d7de;
     color: #57606a;
 }
 
-.markdown-body > *:first-child { margin-top: 0 !important; }
-.markdown-body > *:last-child { margin-bottom: 0 !important; }
+.msg-text > *:first-child { margin-top: 0 !important; }
+.msg-text > *:last-child { margin-bottom: 0 !important; }
