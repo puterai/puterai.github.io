@@ -12,10 +12,11 @@
     const dropdown = document.getElementById('modelPickerDropdown');
     const selectedModelLabel = document.getElementById('selectedModelLabel');
     const selectedIntensityLabel = document.getElementById('selectedIntensityLabel');
-    const modelSection = document.getElementById('modelSection');
-    const intensitySection = document.getElementById('intensitySection');
-    const modelHeaderToggle = document.getElementById('modelHeaderToggle');
-    const intensityHeaderToggle = document.getElementById('intensityHeaderToggle');
+    const modelMainItem = document.getElementById('modelMainItem');
+    const intensityMainItem = document.getElementById('intensityMainItem');
+    const subDropdown = document.getElementById('subDropdown');
+    const modelSubList = document.getElementById('modelSubList');
+    const intensitySubList = document.getElementById('intensitySubList');
     const MAX_TOKENS = 32768;
     let messages = [];
     let isThinking = false, webEnabled = false, hasSent = false;
@@ -54,16 +55,16 @@
     function renderMarkdownWithMath(text) {
         if (!window.katex) return marked.parse(text).replace(/\s+$/, '');
         let formulas = {}, idx = 0;
-        text = text.replace(/\$$([\s\S]*?)\$\$/g, (m, p) => {
-            try { return formulas[`@@KATEX_${idx}@@`] = katex.renderToString(p, { displayMode: true, throwOnError: false }), `@@KATEX_${idx++}@@`; } catch { return m; }
+        text = text.replace(/\$\$([\s\S]*?)\$\$/g, (m, p) => {
+            try { return formulas['@@KATEX_'+idx+'@@'] = katex.renderToString(p, { displayMode: true, throwOnError: false }), '@@KATEX_'+(idx++)+'@@'; } catch { return m; }
         }).replace(/\\\[([\s\S]*?)\\\]/g, (m, p) => {
-            try { return formulas[`@@KATEX_${idx}@@`] = katex.renderToString(p, { displayMode: true, throwOnError: false }), `@@KATEX_${idx++}@@`; } catch { return m; }
+            try { return formulas['@@KATEX_'+idx+'@@'] = katex.renderToString(p, { displayMode: true, throwOnError: false }), '@@KATEX_'+(idx++)+'@@'; } catch { return m; }
         }).replace(/\\\(([\s\S]*?)\\\)/g, (m, p) => {
-            try { return formulas[`@@KATEX_${idx}@@`] = katex.renderToString(p, { displayMode: false, throwOnError: false }), `@@KATEX_${idx++}@@`; } catch { return m; }
+            try { return formulas['@@KATEX_'+idx+'@@'] = katex.renderToString(p, { displayMode: false, throwOnError: false }), '@@KATEX_'+(idx++)+'@@'; } catch { return m; }
         }).replace(/\$([^\$]+?)\$/g, (m, p) => {
-            try { return formulas[`@@KATEX_${idx}@@`] = katex.renderToString(p, { displayMode: false, throwOnError: false }), `@@KATEX_${idx++}@@`; } catch { return m; }
+            try { return formulas['@@KATEX_'+idx+'@@'] = katex.renderToString(p, { displayMode: false, throwOnError: false }), '@@KATEX_'+(idx++)+'@@'; } catch { return m; }
         });
-        return marked.parse(text).replace(/@@KATEX_(\d+)@@/g, (match) => formulas[match] || match).replace(/\s+$/, '');
+        return marked.parse(text).replace(/@@KATEX_(\d+)@@/g, (match, id) => formulas[match] || match).replace(/\s+$/, '');
     }
     function countTokens(text) {
         if (!text) return 0;
@@ -77,7 +78,8 @@
     function messagesToText() {
         return messages.map(msg => (msg.role === 'user' ? '用户: ' : 'AI: ') + msg.content).join('\n');
     }
-    function trimMessagesIfNeeded(limit = MAX_TOKENS) {
+    function trimMessagesIfNeeded(limit) {
+        if (limit === undefined) limit = MAX_TOKENS;
         let total = messages.reduce((sum, msg) => sum + msg.tokens, 0);
         while (total > limit && messages.length >= 2) {
             const removed1 = messages.shift(); const removed2 = messages.shift();
@@ -88,28 +90,61 @@
         if (!puter.auth.isSignedIn()) { sendBtn.disabled = true; return; }
         sendBtn.disabled = isThinking || !inputBox.value.trim();
     }
+    function closeAllDropdowns() {
+        dropdown.classList.remove('active');
+        subDropdown.classList.remove('active');
+        modelMainItem.classList.remove('active');
+        intensityMainItem.classList.remove('active');
+    }
+    function showSubDropdown(type) {
+        if (type === 'model') {
+            modelSubList.style.display = 'block';
+            intensitySubList.style.display = 'none';
+            modelMainItem.classList.add('active');
+            intensityMainItem.classList.remove('active');
+        } else {
+            modelSubList.style.display = 'none';
+            intensitySubList.style.display = 'block';
+            intensityMainItem.classList.add('active');
+            modelMainItem.classList.remove('active');
+        }
+        subDropdown.classList.add('active');
+    }
     pickerTrigger.addEventListener('click', (e) => {
         if (!puter.auth.isSignedIn()) return;
         e.stopPropagation();
-        const isActive = dropdown.classList.toggle('active');
-        if (!isActive) {
-            modelSection.classList.remove('expanded');
-            intensitySection.classList.remove('expanded');
+        if (dropdown.classList.contains('active')) {
+            closeAllDropdowns();
+        } else {
+            dropdown.classList.add('active');
+            subDropdown.classList.remove('active');
+            modelMainItem.classList.remove('active');
+            intensityMainItem.classList.remove('active');
         }
     });
-    modelHeaderToggle.addEventListener('click', (e) => {
+    modelMainItem.addEventListener('click', (e) => {
         e.stopPropagation();
-        modelSection.classList.toggle('expanded');
+        if (!dropdown.classList.contains('active')) return;
+        if (subDropdown.classList.contains('active') && modelMainItem.classList.contains('active')) {
+            subDropdown.classList.remove('active');
+            modelMainItem.classList.remove('active');
+            return;
+        }
+        showSubDropdown('model');
     });
-    intensityHeaderToggle.addEventListener('click', (e) => {
+    intensityMainItem.addEventListener('click', (e) => {
         e.stopPropagation();
-        intensitySection.classList.toggle('expanded');
+        if (!dropdown.classList.contains('active')) return;
+        if (subDropdown.classList.contains('active') && intensityMainItem.classList.contains('active')) {
+            subDropdown.classList.remove('active');
+            intensityMainItem.classList.remove('active');
+            return;
+        }
+        showSubDropdown('intensity');
     });
     document.addEventListener('click', (e) => {
-        if (!inputContainer.contains(e.target)) {
-            dropdown.classList.remove('active');
-            modelSection.classList.remove('expanded');
-            intensitySection.classList.remove('expanded');
+        if (!inputContainer.contains(e.target) && !subDropdown.contains(e.target)) {
+            closeAllDropdowns();
         }
     });
     document.querySelectorAll('.model-item').forEach(item => {
@@ -119,6 +154,7 @@
             item.classList.add('selected');
             currentModel = item.dataset.model;
             selectedModelLabel.textContent = currentModel;
+            closeAllDropdowns();
         });
     });
     document.querySelectorAll('.intensity-item').forEach(item => {
@@ -128,6 +164,7 @@
             item.classList.add('selected');
             currentIntensity = item.dataset.intensity;
             selectedIntensityLabel.textContent = item.textContent;
+            closeAllDropdowns();
         });
     });
     function createCopySVG() {
@@ -160,12 +197,13 @@
             }
         });
     }
-    function addMessage(text, isUser = false) {
+    function addMessage(text, isUser) {
+        if (isUser === undefined) isUser = false;
         if (isUser && !hasSent) { welcome.style.display = 'none'; hasSent = true; }
         let row = document.createElement('div');
-        row.className = `msg-row ${isUser ? 'user' : 'ai'}`;
+        row.className = 'msg-row ' + (isUser ? 'user' : 'ai');
         let bubble = document.createElement('div');
-        bubble.className = `msg-bubble${isUser ? ' user' : ''}`;
+        bubble.className = 'msg-bubble' + (isUser ? ' user' : '');
         let msgText = document.createElement('div');
         msgText.className = 'msg-text';
         if (isUser) { msgText.innerHTML = escapeHtml(text).replace(/\n/g, '<br>'); }
@@ -201,7 +239,7 @@
                     thinkingRow.remove(); thinkingRow = null;
                     let row = document.createElement('div'); row.className = 'msg-row ai';
                     let tag = document.createElement('div'); tag.className = 'model-tag';
-                    tag.textContent = `${currentModel} ${currentIntensity === 'mid' ? '中' : '高'}`;
+                    tag.textContent = currentModel + ' ' + (currentIntensity === 'mid' ? '中' : '高');
                     row.appendChild(tag);
                     let bubble = document.createElement('div'); bubble.className = 'msg-bubble';
                     msgText = document.createElement('div'); msgText.className = 'msg-text';
@@ -211,7 +249,7 @@
                     chatContainer.appendChild(row); firstChunkReceived = true;
                     setupCopyButton(copyBtn, '');
                 }
-                if (part?.text) {
+                if (part && part.text) {
                     full += part.text; msgText.innerHTML = renderMarkdownWithMath(full);
                     chatContainer.scrollTop = chatContainer.scrollHeight;
                 }
@@ -222,7 +260,7 @@
                 messages.push({ role: 'assistant', content: full, tokens: countTokens(full) });
                 trimMessagesIfNeeded(MAX_TOKENS);
                 let lastRow = chatContainer.lastChild;
-                let lastCopyBtn = lastRow.querySelector('.copy-btn');
+                let lastCopyBtn = lastRow ? lastRow.querySelector('.copy-btn') : null;
                 if (lastCopyBtn) setupCopyButton(lastCopyBtn, full);
             }
         } catch (err) { if (thinkingRow) thinkingRow.remove(); addMessage('错误: ' + err.message, false); }
