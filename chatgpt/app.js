@@ -12,11 +12,10 @@
     const dropdown = document.getElementById('modelPickerDropdown');
     const selectedModelLabel = document.getElementById('selectedModelLabel');
     const selectedIntensityLabel = document.getElementById('selectedIntensityLabel');
-    const modelMainItem = document.getElementById('modelMainItem');
-    const intensityMainItem = document.getElementById('intensityMainItem');
-    const subDropdown = document.getElementById('subDropdown');
-    const modelSubList = document.getElementById('modelSubList');
-    const intensitySubList = document.getElementById('intensitySubList');
+    const modelSection = document.getElementById('modelSection');
+    const intensitySection = document.getElementById('intensitySection');
+    const modelHeaderToggle = document.getElementById('modelHeaderToggle');
+    const intensityHeaderToggle = document.getElementById('intensityHeaderToggle');
     const MAX_TOKENS = 32768;
     let messages = [];
     let isThinking = false, webEnabled = false, hasSent = false;
@@ -92,58 +91,32 @@
     }
     function closeAllDropdowns() {
         dropdown.classList.remove('active');
-        subDropdown.classList.remove('active');
-        modelMainItem.classList.remove('active');
-        intensityMainItem.classList.remove('active');
-    }
-    function showSubDropdown(type) {
-        if (type === 'model') {
-            modelSubList.style.display = 'block';
-            intensitySubList.style.display = 'none';
-            modelMainItem.classList.add('active');
-            intensityMainItem.classList.remove('active');
-        } else {
-            modelSubList.style.display = 'none';
-            intensitySubList.style.display = 'block';
-            intensityMainItem.classList.add('active');
-            modelMainItem.classList.remove('active');
-        }
-        subDropdown.classList.add('active');
+        modelSection.classList.remove('expanded');
+        intensitySection.classList.remove('expanded');
     }
     pickerTrigger.addEventListener('click', (e) => {
         if (!puter.auth.isSignedIn()) return;
         e.stopPropagation();
-        if (dropdown.classList.contains('active')) {
-            closeAllDropdowns();
-        } else {
-            dropdown.classList.add('active');
-            subDropdown.classList.remove('active');
-            modelMainItem.classList.remove('active');
-            intensityMainItem.classList.remove('active');
+        const isActive = dropdown.classList.toggle('active');
+        if (!isActive) {
+            modelSection.classList.remove('expanded');
+            intensitySection.classList.remove('expanded');
         }
     });
-    modelMainItem.addEventListener('click', (e) => {
+    modelHeaderToggle.addEventListener('click', (e) => {
         e.stopPropagation();
         if (!dropdown.classList.contains('active')) return;
-        if (subDropdown.classList.contains('active') && modelMainItem.classList.contains('active')) {
-            subDropdown.classList.remove('active');
-            modelMainItem.classList.remove('active');
-            return;
-        }
-        showSubDropdown('model');
+        modelSection.classList.toggle('expanded');
+        intensitySection.classList.remove('expanded');
     });
-    intensityMainItem.addEventListener('click', (e) => {
+    intensityHeaderToggle.addEventListener('click', (e) => {
         e.stopPropagation();
         if (!dropdown.classList.contains('active')) return;
-        if (subDropdown.classList.contains('active') && intensityMainItem.classList.contains('active')) {
-            subDropdown.classList.remove('active');
-            intensityMainItem.classList.remove('active');
-            return;
-        }
-        showSubDropdown('intensity');
+        intensitySection.classList.toggle('expanded');
+        modelSection.classList.remove('expanded');
     });
     document.addEventListener('click', (e) => {
-        if (!inputContainer.contains(e.target) && !subDropdown.contains(e.target)) {
+        if (!inputContainer.contains(e.target)) {
             closeAllDropdowns();
         }
     });
