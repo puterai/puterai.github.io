@@ -12,6 +12,10 @@
     const dropdown = document.getElementById('modelPickerDropdown');
     const selectedModelLabel = document.getElementById('selectedModelLabel');
     const selectedIntensityLabel = document.getElementById('selectedIntensityLabel');
+    const modelSection = document.getElementById('modelSection');
+    const intensitySection = document.getElementById('intensitySection');
+    const modelHeaderToggle = document.getElementById('modelHeaderToggle');
+    const intensityHeaderToggle = document.getElementById('intensityHeaderToggle');
     const MAX_TOKENS = 32768;
     let messages = [];
     let isThinking = false, webEnabled = false, hasSent = false;
@@ -86,10 +90,27 @@
     }
     pickerTrigger.addEventListener('click', (e) => {
         if (!puter.auth.isSignedIn()) return;
-        e.stopPropagation(); dropdown.classList.toggle('active');
+        e.stopPropagation();
+        const isActive = dropdown.classList.toggle('active');
+        if (!isActive) {
+            modelSection.classList.remove('expanded');
+            intensitySection.classList.remove('expanded');
+        }
+    });
+    modelHeaderToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        modelSection.classList.toggle('expanded');
+    });
+    intensityHeaderToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        intensitySection.classList.toggle('expanded');
     });
     document.addEventListener('click', (e) => {
-        if (!inputContainer.contains(e.target)) dropdown.classList.remove('active');
+        if (!inputContainer.contains(e.target)) {
+            dropdown.classList.remove('active');
+            modelSection.classList.remove('expanded');
+            intensitySection.classList.remove('expanded');
+        }
     });
     document.querySelectorAll('.model-item').forEach(item => {
         item.addEventListener('click', (e) => {
