@@ -7,7 +7,7 @@
     const sendBtn = document.getElementById('sendButton');
     const webToggle = document.getElementById('webSearchToggle');
     const welcome = document.getElementById('welcomeMessage');
-    const newChat = document.getElementById('newChatBtn');
+    const logoWrapper = document.getElementById('logoWrapper');
     const pickerTrigger = document.getElementById('modelPickerTrigger');
     const dropdown = document.getElementById('modelPickerDropdown');
     const selectedModelLabel = document.getElementById('selectedModelLabel');
@@ -50,7 +50,7 @@
     function renderMarkdownWithMath(text) {
         if (!window.katex) return marked.parse(text).replace(/\s+$/, '');
         let formulas = {}, idx = 0;
-        text = text.replace(/\$\$([\s\S]*?)\$\$/g, (m, p) => {
+        text = text.replace(/\$$([\s\S]*?)\$\$/g, (m, p) => {
             try { return formulas[`@@KATEX_${idx}@@`] = katex.renderToString(p, { displayMode: true, throwOnError: false }), `@@KATEX_${idx++}@@`; } catch { return m; }
         }).replace(/\\\[([\s\S]*?)\\\]/g, (m, p) => {
             try { return formulas[`@@KATEX_${idx}@@`] = katex.renderToString(p, { displayMode: true, throwOnError: false }), `@@KATEX_${idx++}@@`; } catch { return m; }
@@ -218,6 +218,6 @@
     });
     sendBtn.addEventListener('click', send);
     webToggle.addEventListener('click', () => { webEnabled = !webEnabled; webToggle.classList.toggle('active', webEnabled); });
-    newChat.addEventListener('click', () => location.reload());
+    logoWrapper.addEventListener('click', () => location.reload());
     checkAuthStatus();
 })();
