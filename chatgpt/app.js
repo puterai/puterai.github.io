@@ -71,8 +71,7 @@
         return tokens;
     }
     function messagesToText() {
-        return messages.map(msg => (msg.role === 'user' ? '用户: ' : 'AI: ') + msg.content).join('
-');
+        return messages.map(msg => (msg.role === 'user' ? '用户: ' : 'AI: ') + msg.content).join('\n');
     }
     function trimMessagesIfNeeded(limit = MAX_TOKENS) {
         let total = messages.reduce((sum, msg) => sum + msg.tokens, 0);
@@ -147,7 +146,7 @@
         let bubble = document.createElement('div');
         bubble.className = `msg-bubble${isUser ? ' user' : ''}`;
         let msgText = document.createElement('div');
-        msgText.className = isUser ? 'msg-text' : 'msg-text markdown-body';
+        msgText.className = 'msg-text';
         if (isUser) { msgText.innerHTML = escapeHtml(text).replace(/\n/g, '<br>'); }
         else { msgText.innerHTML = renderMarkdownWithMath(text); }
         bubble.appendChild(msgText); row.appendChild(bubble);
@@ -174,9 +173,7 @@
         let firstChunkReceived = false, msgText = null, full = '';
         try {
             let history = messagesToText();
-            let prompt = (history ? history + '
-' : '') + '用户: ' + text + '
-AI: ';
+            let prompt = (history ? history + '\n' : '') + '用户: ' + text + '\nAI: ';
             let res = await puter.ai.chat(prompt, opts);
             for await (let part of res) {
                 if (!firstChunkReceived) {
@@ -186,7 +183,7 @@ AI: ';
                     tag.textContent = `${currentModel} ${currentIntensity === 'mid' ? '中' : '高'}`;
                     row.appendChild(tag);
                     let bubble = document.createElement('div'); bubble.className = 'msg-bubble';
-                    msgText = document.createElement('div'); msgText.className = 'msg-text markdown-body';
+                    msgText = document.createElement('div'); msgText.className = 'msg-text';
                     bubble.appendChild(msgText); row.appendChild(bubble);
                     let copyBtn = document.createElement('button'); copyBtn.className = 'copy-btn';
                     copyBtn.appendChild(createCopySVG()); row.appendChild(copyBtn);
