@@ -35,19 +35,29 @@
                 <span class="arrow"></span>
             </div>
             <div class="model-picker-dropdown" id="modelPickerDropdown">
-                <div class="dropdown-section">
-                    <div class="dropdown-header">模型</div>
-                    <div class="dropdown-item model-item selected" data-model="5.5">5.5</div>
-                    <div class="dropdown-item model-item" data-model="5.6 Sol">5.6 Sol</div>
-                    <div class="dropdown-item model-item" data-model="5.6 Terra">5.6 Terra</div>
-                    <div class="dropdown-item model-item" data-model="5.6 Luna">5.6 Luna</div>
-                    <div class="dropdown-item model-item" data-model="5.4">5.4</div>
-                    <div class="dropdown-item model-item" data-model="5.4 Mini">5.4 Mini</div>
+                <div class="dropdown-section" id="modelSection">
+                    <div class="dropdown-header-toggle" id="modelHeaderToggle">
+                        <span>模型</span>
+                        <span class="side-arrow"></span>
+                    </div>
+                    <div class="dropdown-sub-list" id="modelSubList">
+                        <div class="dropdown-item model-item selected" data-model="5.5">5.5</div>
+                        <div class="dropdown-item model-item" data-model="5.6 Sol">5.6 Sol</div>
+                        <div class="dropdown-item model-item" data-model="5.6 Terra">5.6 Terra</div>
+                        <div class="dropdown-item model-item" data-model="5.6 Luna">5.6 Luna</div>
+                        <div class="dropdown-item model-item" data-model="5.4">5.4</div>
+                        <div class="dropdown-item model-item" data-model="5.4 Mini">5.4 Mini</div>
+                    </div>
                 </div>
-                <div class="dropdown-section">
-                    <div class="dropdown-header">推理强度</div>
-                    <div class="dropdown-item intensity-item selected" data-intensity="mid">中</div>
-                    <div class="dropdown-item intensity-item" data-intensity="high">高</div>
+                <div class="dropdown-section" id="intensitySection">
+                    <div class="dropdown-header-toggle" id="intensityHeaderToggle">
+                        <span>推理强度</span>
+                        <span class="side-arrow"></span>
+                    </div>
+                    <div class="dropdown-sub-list" id="intensitySubList">
+                        <div class="dropdown-item intensity-item selected" data-intensity="mid">中</div>
+                        <div class="dropdown-item intensity-item" data-intensity="high">高</div>
+                    </div>
                 </div>
             </div>
             <button class="send-button" id="sendButton">
