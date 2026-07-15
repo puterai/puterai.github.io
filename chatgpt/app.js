@@ -160,14 +160,12 @@
         });
     });
     function createCopySVG() {
-        const xmlns = "http://www.w3.org/2000/svg";
-        const svg = document.createElementNS(xmlns, "svg");
-        svg.setAttribute("viewBox", "0 0 1024 1024");
-        const path1 = document.createElementNS(xmlns, "path");
-        path1.setAttribute("d", "M819.2 819.2v-68.266667h68.266667c40.96 0 68.266667-27.306667 68.266666-68.266666V136.533333c0-40.96-27.306667-68.266667-68.266666-68.266667H341.333333c-40.96 0-68.266667 27.306667-68.266666 68.266666v68.266667H204.8V136.533333c0-75.093333 61.44-136.533333 136.533333-136.533333h546.133334c75.093333 0 136.533333 61.44 136.533333 136.533333v546.133334c0 75.093333-61.44 136.533333-136.533333 136.533333h-68.266667z");
-        const path2 = document.createElementNS(xmlns, "path");
-        path2.setAttribute("d", "M136.533333 204.8h546.133334c75.093333 0 136.533333 61.44 136.533333 136.533333v546.133334c0 75.093333-61.44 136.533333-136.533333 136.533333H136.533333c-75.093333 0-136.533333-61.44-136.533333-136.533333V341.333333c0-75.093333 61.44-136.533333 136.533333-136.533333z m0 68.266667c-40.96 0-68.266667 27.306667-68.266666 68.266666v546.133334c0 40.96 27.306667 68.266667 68.266666 68.266666h546.133334c40.96 0 68.266667-27.306667 68.266666-68.266666V341.333333c0-40.96-27.306667-68.266667-68.266666-68.266666H136.533333z");
-        svg.appendChild(path1); svg.appendChild(path2); return svg;
+        const img = document.createElement("img");
+        img.src = "copy.svg";
+        img.style.width = "18px";
+        img.style.height = "18px";
+        img.style.objectFit = "contain";
+        return img;
     }
     function createCheckSVG() {
         const xmlns = "http://www.w3.org/2000/svg";
